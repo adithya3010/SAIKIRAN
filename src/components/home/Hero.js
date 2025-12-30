@@ -1,60 +1,67 @@
 "use client";
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
     return (
-        <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden pt-[80px] pb-8 md:pb-0">
-            {/* Background Gradient */}
-            <div
-                className="absolute inset-0 bg-gradient-to-r from-[#1a1a1a] via-[#3a3a3a] to-[#9a9a9a]"
-            />
+        <section className="relative min-h-screen w-full bg-black flex flex-col md:flex-row items-center justify-center overflow-hidden">
 
-            <div className="relative z-10 w-full h-full max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 items-center px-4 md:px-8 lg:px-16 gap-6 md:gap-12 py-8 md:py-0">
+            {/* Background Gradient - Spotlight Effect */}
+            <div className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(circle_at_80%_50%,_#404040_0%,_#1a1a1a_40%,_#000000_80%)] opacity-80" />
 
-                {/* Left Content */}
-                <div className="flex flex-col items-center md:items-start justify-center space-y-4 md:space-y-6 relative text-center md:text-left order-2 md:order-1">
-                    <h1 className="font-outfit text-[clamp(2rem,8vw,5rem)] font-bold leading-[1.1] uppercase text-white tracking-tight">
-                        STAND OUT WITH<br />
-                        UNIQUE UNISEX<br />
-                        T-SHIRTS
+            {/* Content Container */}
+            <div className="container mx-auto px-4 md:px-8 lg:px-16 flex flex-col md:flex-row items-center justify-between z-10 h-full pt-28 md:pt-0">
+
+                {/* Left Side: Text & Buttons */}
+                <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left z-10">
+                    <h1 className="text-5xl md:text-6xl lg:text-[5rem] font-bold uppercase tracking-tight leading-[1.1] text-white mb-2">
+                        OWN THE <br />
+                        <span className="text-neutral-200">UNORDINARY</span>
+                        <span className="text-neutral-500">.</span>
                     </h1>
 
-                    <p className="font-outfit text-[clamp(1rem,3vw,1.5rem)] text-white/90 font-light">
-                        Be Different. Be Yourself.
+                    {/* Divider Line */}
+                    <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-neutral-500 to-transparent md:bg-neutral-700 md:bg-none md:w-32 md:h-[1px] my-6" />
+
+                    <p className="text-neutral-400 text-base md:text-lg max-w-xs md:max-w-md font-medium tracking-wide mb-8">
+                        Premium monochrome t-shirt for those who stand out without trying.
                     </p>
 
-                    <Link href="/shop">
-                        <button className="bg-black text-white font-outfit font-bold text-sm md:text-base uppercase tracking-[0.2em] px-8 md:px-12 py-3 md:py-4 rounded-full hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 mt-2 md:mt-4">
-                            SHOP NOW
-                        </button>
-                    </Link>
+                    {/* Mobile Image (Visible only on mobile) */}
+                    <div className="relative w-full aspect-square max-w-[350px] md:hidden mb-8">
+                        <Image
+                            src="/hero-tshirts-mobile.png"
+                            alt="May Be Not Ordinary T-Shirts"
+                            fill
+                            priority
+                            className="object-contain drop-shadow-2xl"
+                        />
+                    </div>
+
+                    <div className="flex flex-col w-full max-w-[350px] md:max-w-none md:flex-row gap-4">
+                        <Link href="/shop" className="w-full md:w-auto">
+                            <button className="w-full md:w-auto px-10 py-4 bg-[#e5e5e5] text-black font-bold uppercase tracking-wider text-sm rounded hover:bg-white transition-all transform hover:scale-105">
+                                Shop Now
+                            </button>
+                        </Link>
+                        <Link href="/about" className="w-full md:w-auto">
+                            <button className="w-full md:w-auto px-10 py-4 bg-transparent border border-neutral-600 text-white font-bold uppercase tracking-wider text-sm rounded hover:bg-neutral-900 hover:border-neutral-400 transition-all">
+                                Explore More
+                            </button>
+                        </Link>
+                    </div>
                 </div>
 
-                {/* Right Side - T-Shirt Products Display */}
-                <div className="relative h-[400px] md:h-full w-full flex items-center justify-center order-1 md:order-2">
-                    <div className="relative w-full h-full flex items-center justify-center">
-
-                        {/* Black T-Shirt - Left/Back layer */}
-                        <div className="absolute left-[8%] md:left-[5%] top-[10%] md:top-[15%] w-[48%] md:w-[55%] z-10 transform rotate-[-5deg] hover:rotate-[-2deg] hover:scale-105 transition-all duration-500">
-                            <img
-                                src="/black_tshirt.png"
-                                alt="Black May Be Not Ordinary T-Shirt"
-                                className="w-full h-auto object-contain filter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] md:drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                            />
-                        </div>
-
-                        {/* White T-Shirt - Right/Front layer */}
-                        <div className="absolute right-[2%] md:right-[0%] bottom-[8%] md:bottom-[12%] w-[52%] md:w-[58%] z-20 transform rotate-[5deg] hover:rotate-[2deg] hover:scale-105 transition-all duration-500">
-                            <img
-                                src="/white_tshirt.png"
-                                alt="White May Be Not Ordinary T-Shirt"
-                                className="w-full h-auto object-contain filter drop-shadow-[0_15px_40px_rgba(0,0,0,0.6)] md:drop-shadow-[0_25px_60px_rgba(0,0,0,0.6)]"
-                            />
-                        </div>
-
-                        {/* Logo Watermark - Subtle background element */}
-
-
+                {/* Right Side: Image (Visible only on Desktop) */}
+                <div className="hidden md:flex w-1/2 justify-center items-center relative h-screen">
+                    <div className="relative w-full h-full max-w-[700px]">
+                        <Image
+                            src="/hero-tshirts-mobile.png"
+                            alt="May Be Not Ordinary T-Shirts"
+                            fill
+                            priority
+                            className="object-contain object-center drop-shadow-2xl"
+                        />
                     </div>
                 </div>
 
