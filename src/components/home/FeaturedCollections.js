@@ -1,9 +1,9 @@
 import Link from 'next/link';
 
 const collections = [
-    { id: 1, title: 'Men\'s Collection', href: '/shop/men', gradient: 'bg-gradient-to-tr from-[#111] to-[#333]' },
-    { id: 2, title: 'Women\'s Collection', href: '/shop/women', gradient: 'bg-gradient-to-tr from-[#222] to-[#444]' },
-    { id: 3, title: 'Accessories', href: '/shop/accessories', gradient: 'bg-gradient-to-tr from-[#050505] to-[#222]' },
+    { id: 1, title: 'Oversized Tees', href: '/shop/oversized', gradient: 'bg-gradient-to-tr from-[#111] to-[#333]' },
+    { id: 2, title: 'Basic Essentials', href: '/shop/basics', gradient: 'bg-gradient-to-tr from-[#222] to-[#444]' },
+    { id: 3, title: 'Limited Edition', href: '/shop/limited', gradient: 'bg-gradient-to-tr from-[#050505] to-[#222]' },
 ];
 
 export default function FeaturedCollections() {

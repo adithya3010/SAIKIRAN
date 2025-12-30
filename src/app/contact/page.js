@@ -11,8 +11,8 @@ export default function ContactPage() {
                     <div className="mb-12">
                         <h3 className="text-grey-500 uppercase tracking-widest text-sm mb-4">Studio</h3>
                         <p className="text-white text-xl leading-relaxed">
-                            100 obsidian Way<br />
-                            Shadow District, NY 10012
+                            SAI KIRAN<br />
+                            +917720820577
                         </p>
                     </div>
 

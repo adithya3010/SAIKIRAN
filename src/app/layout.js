@@ -17,8 +17,8 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "KSHRA | Luxury Fashion",
-  description: "Premium monochrome clothing for men and women.",
+  title: "MAY BE NOT | Unisex Essentials",
+  description: "Ordinary is overrated. Premium unisex t-shirts.",
 };
 
 export default function RootLayout({ children }) {

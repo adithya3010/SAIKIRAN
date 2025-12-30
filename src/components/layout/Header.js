@@ -17,8 +17,8 @@ export default function Header() {
                     {/* Left (Desktop Nav) */}
                     <div className="hidden md:flex items-center gap-8">
                         <nav className="flex gap-8">
-                            {['Men', 'Women', 'Collections'].map((item) => (
-                                <Link key={item} href={item === 'Collections' ? '/collections' : `/shop/${item.toLowerCase()}`} className="text-sm uppercase tracking-wider text-grey-400 transition-colors hover:text-white">
+                            {['Shop', 'Collections', 'About'].map((item) => (
+                                <Link key={item} href={item === 'Shop' ? '/shop' : `/${item.toLowerCase()}`} className="text-sm uppercase tracking-wider text-grey-400 transition-colors hover:text-white">
                                     {item}
                                 </Link>
                             ))}
@@ -35,7 +35,7 @@ export default function Header() {
                     {/* Center (Logo) */}
                     <div className="flex justify-center">
                         <Link href="/" className="font-outfit text-2xl font-bold tracking-[0.1em] uppercase text-white">
-                            KSHRA
+                            MAY BE NOT
                         </Link>
                     </div>
 
