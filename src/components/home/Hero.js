@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Button from '../ui/Button';
 
 export default function Hero() {
@@ -16,8 +17,12 @@ export default function Hero() {
                     Engineered for silence and precision.
                 </p>
                 <div className="flex flex-col md:flex-row gap-4 justify-center px-8 md:px-0">
-                    <Button size="lg" variant="solid">Shop Men</Button>
-                    <Button size="lg" variant="outline">Shop Women</Button>
+                    <Link href="/shop/men">
+                        <Button size="lg" variant="solid" className="w-full md:w-auto">Shop Men</Button>
+                    </Link>
+                    <Link href="/shop/women">
+                        <Button size="lg" variant="outline" className="w-full md:w-auto">Shop Women</Button>
+                    </Link>
                 </div>
             </div>
         </section>
