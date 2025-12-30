@@ -24,7 +24,7 @@ export default function Header() {
     return (
         <>
             <header className="fixed top-0 left-0 w-full h-[80px] z-[100] bg-black/80 backdrop-blur-xl border-b border-white/10 transition-transform duration-300">
-                <div className="max-w-[1400px] mx-auto h-full px-4 flex justify-between items-center">
+                <div className="w-full h-full pl-0 pr-4 flex justify-between items-center">
 
                     {/* Left (Logo) */}
                     <div className="flex items-center">
