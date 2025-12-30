@@ -1,81 +1,72 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Button from '../ui/Button';
+import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import SearchModal from '../search/SearchModal';
 
+const SearchIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+);
+
+const UserIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+);
+
+const ShoppingBagIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+);
+
 export default function Header() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const { toggleCart, cartCount } = useCart();
 
     return (
         <>
             <header className="fixed top-0 left-0 w-full h-[80px] z-[100] bg-black/80 backdrop-blur-xl border-b border-white/10 transition-transform duration-300">
-                <div className="max-w-[1400px] mx-auto h-full px-4 grid grid-cols-[1fr_auto_1fr] items-center">
-                    {/* Left (Desktop Nav) */}
-                    <div className="hidden md:flex items-center gap-8">
-                        <nav className="flex gap-8">
-                            {['Shop', 'Collections', 'About'].map((item) => (
-                                <Link key={item} href={item === 'Shop' ? '/shop' : `/${item.toLowerCase()}`} className="text-sm uppercase tracking-wider text-grey-400 transition-colors hover:text-white">
-                                    {item}
-                                </Link>
-                            ))}
-                        </nav>
-                    </div>
+                <div className="max-w-[1400px] mx-auto h-full px-4 flex justify-between items-center">
 
-                    {/* Left (Mobile Menu Toggle) */}
-                    <div className="flex md:hidden justify-start">
-                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white uppercase tracking-wider text-sm bg-transparent border-none p-2">
-                            {isMenuOpen ? 'Close' : 'Menu'}
-                        </button>
-                    </div>
-
-                    {/* Center (Logo) */}
-                    <div className="flex justify-center">
-                        <Link href="/" className="font-outfit text-2xl font-bold tracking-[0.1em] uppercase text-white">
-                            MAY BE NOT
+                    {/* Left (Logo) */}
+                    <div className="flex items-center">
+                        <Link href="/" className="relative w-48 h-24 md:w-64 md:h-32 left-0">
+                            <Image
+                                src="/brand.png"
+                                alt="MAY BE NOT"
+                                fill
+                                className="object-contain object-left filter invert"
+                                priority
+                            />
                         </Link>
                     </div>
 
                     {/* Right (Actions) */}
-                    <div className="flex justify-end items-center gap-6">
+                    <div className="flex items-center gap-5 md:gap-8">
                         <button
                             onClick={() => setIsSearchOpen(true)}
-                            className="hidden md:block bg-transparent border-none text-white text-sm uppercase tracking-wider cursor-pointer opacity-80 hover:opacity-100 transition-opacity"
+                            className="text-white hover:text-grey-300 transition-colors"
+                            aria-label="Search"
                         >
-                            Search
+                            <SearchIcon />
                         </button>
-                        <button className="hidden md:block bg-transparent border-none text-white text-sm uppercase tracking-wider cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
-                            Account
+
+                        <Link href="/account" className="text-white hover:text-grey-300 transition-colors" aria-label="Account">
+                            <UserIcon />
+                        </Link>
+
+                        <button
+                            onClick={toggleCart}
+                            className="relative text-white hover:text-grey-300 transition-colors"
+                            aria-label="Cart"
+                        >
+                            <ShoppingBagIcon />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                                    {cartCount}
+                                </span>
+                            )}
                         </button>
-                        <Button variant="outline" size="sm" className="text-xs" onClick={toggleCart}>
-                            Cart ({cartCount})
-                        </Button>
                     </div>
                 </div>
-
-                {/* Mobile Menu Overlay */}
-                {isMenuOpen && (
-                    <div className="fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center gap-8 md:hidden overflow-y-auto pb-20">
-                        <nav className="flex flex-col items-center gap-8">
-                            {['Men', 'Women', 'Collections', 'Search', 'Account'].map((item) => (
-                                <Link
-                                    key={item}
-                                    href={item === 'Collections' ? '/collections' : ['Search', 'Account'].includes(item) ? '#' : `/shop/${item.toLowerCase()}`}
-                                    className="text-3xl uppercase tracking-wider text-white font-medium hover:text-grey-400 transition-colors"
-                                    onClick={() => {
-                                        setIsMenuOpen(false);
-                                        if (item === 'Search') setIsSearchOpen(true);
-                                    }}
-                                >
-                                    {item}
-                                </Link>
-                            ))}
-                        </nav>
-                    </div>
-                )}
             </header>
 
             <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
