@@ -18,7 +18,7 @@ export default function Loading() {
                     animation: fillUp 2s ease-in-out infinite alternate;
                 }
                 .animate-breathe {
-                    animation: breathe 3s ease-in-out infinite;
+                    animation: breathe 1s ease-in-out infinite;
                 }
             `}</style>
 
