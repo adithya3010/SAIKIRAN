@@ -153,3 +153,33 @@ export const getProductsByCategory = (category) => {
 export const getProductById = (id) => {
     return products.find(product => product.id === parseInt(id));
 };
+
+// Admin Mock Data
+export const mockOrders = [
+    { id: 'ORD-001', customer: 'Aditya Rao', date: '2025-12-30', total: 12900, status: 'Processing', items: 2 },
+    { id: 'ORD-002', customer: 'Sarah Smith', date: '2025-12-29', total: 4500, status: 'Shipped', items: 1 },
+    { id: 'ORD-003', customer: 'Mike Chen', date: '2025-12-28', total: 24300, status: 'Delivered', items: 3 },
+    { id: 'ORD-004', customer: 'Priya Patel', date: '2025-12-28', total: 8900, status: 'Delivered', items: 1 },
+    { id: 'ORD-005', customer: 'John Doe', date: '2025-12-27', total: 6500, status: 'Cancelled', items: 1 },
+];
+
+export const mockUsers = [
+    { id: 'USR-001', name: 'Aditya Rao', email: 'aditya@example.com', role: 'customer', joined: '2025-10-12' },
+    { id: 'USR-002', name: 'Admin User', email: 'admin@maybenot.com', role: 'admin', joined: '2025-01-01' },
+    { id: 'USR-003', name: 'Sarah Smith', email: 'sarah@example.com', role: 'customer', joined: '2025-11-05' },
+    { id: 'USR-004', name: 'Mike Chen', email: 'mike@example.com', role: 'customer', joined: '2025-12-01' },
+];
+
+export const heroVariants = [
+    { id: 1, name: 'Minimalist Spotlight', description: 'Central focus with spotlight gradient', image: '/hero-1-preview.png' },
+    { id: 2, name: 'Split Screen Gradient', description: 'Left text, right image with dynamic gradient', image: '/hero-2-preview.png' },
+    { id: 3, name: 'Full Width Video', description: 'Background video loop with overlay text', image: '/hero-3-preview.png' },
+    { id: 4, name: 'Typography Bold', description: 'Large scale typography with overlapping elements', image: '/hero-4-preview.png' },
+    { id: 5, name: 'Grid Layout', description: 'Magazine style grid of multiple images', image: '/hero-5-preview.png' },
+    { id: 6, name: 'Asymmetric Float', description: 'Floating elements with parallax effect', image: '/hero-6-preview.png' }
+];
+
+// Simple in-memory storage simulation for demo purposes
+// In a real app, this would be in a database
+export let activeHeroId = 1;
+export const setActiveHeroId = (id) => { activeHeroId = id; };

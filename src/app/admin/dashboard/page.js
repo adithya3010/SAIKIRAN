@@ -3,6 +3,20 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { mockOrders, mockUsers, products } from "@/lib/data";
+
+const StatCard = ({ title, value, subtext, trend }) => (
+    <div className="bg-black p-6 rounded-xl border border-white/10 hover:border-white/30 transition-colors">
+        <h3 className="text-grey-400 uppercase tracking-widest text-xs font-bold mb-2">{title}</h3>
+        <p className="text-3xl font-outfit font-bold text-white mb-1">{value}</p>
+        <div className="flex items-center gap-2">
+            <span className={`text-xs font-bold ${trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
+                {trend === 'up' ? '↑' : '↓'} 12%
+            </span>
+            <span className="text-grey-600 text-xs">{subtext}</span>
+        </div>
+    </div>
+);
 
 export default function AdminDashboard() {
     const { data: session, status } = useSession();
@@ -16,29 +30,73 @@ export default function AdminDashboard() {
         }
     }, [status, session, router]);
 
-    if (status === "loading") {
-        return <div className="min-h-screen bg-black text-white flex items-center justify-center">Loading...</div>;
-    }
+    if (status === "loading") return <div className="text-white p-8">Loading...</div>;
+    if (!session || session.user.role !== "admin") return null;
 
-    if (!session || session.user.role !== "admin") {
-        return null; // Don't render anything while redirecting
-    }
+    // Calculate Stats
+    const totalRevenue = mockOrders.reduce((acc, order) => acc + order.total, 0);
+    const totalOrders = mockOrders.length;
+    const totalUsers = mockUsers.length;
+    const lowStockProducts = products.filter(p => !p.inStock || p.inStock < 10); // Mock check
 
     return (
-        <div className="min-h-screen bg-black text-white p-8">
-            <h1 className="text-4xl font-bold mb-8">Admin Dashboard</h1>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white/10 p-6 rounded-lg border border-white/20">
-                    <h2 className="text-xl font-bold mb-2">Total Users</h2>
-                    <p className="text-3xl text-grey-400">0</p>
+        <div className="p-8 md:p-12 max-w-7xl mx-auto">
+            <div className="flex justify-between items-end mb-10">
+                <div>
+                    <h1 className="text-4xl font-outfit font-bold uppercase mb-2">Dashboard</h1>
+                    <p className="text-grey-400">Welcome back, Admin</p>
                 </div>
-                <div className="bg-white/10 p-6 rounded-lg border border-white/20">
-                    <h2 className="text-xl font-bold mb-2">Total Orders</h2>
-                    <p className="text-3xl text-grey-400">0</p>
+                <div className="text-right">
+                    <p className="text-sm text-grey-500 uppercase tracking-widest">Today's Date</p>
+                    <p className="text-lg font-mono text-white">{new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                 </div>
-                <div className="bg-white/10 p-6 rounded-lg border border-white/20">
-                    <h2 className="text-xl font-bold mb-2">Revenue</h2>
-                    <p className="text-3xl text-grey-400">₹0</p>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <StatCard title="Total Revenue" value={`₹${totalRevenue.toLocaleString()}`} subtext="vs last month" trend="up" />
+                <StatCard title="Total Orders" value={totalOrders} subtext="vs last month" trend="up" />
+                <StatCard title="Total Customers" value={totalUsers} subtext="new this month" trend="up" />
+                <StatCard title="Products" value={products.length} subtext="active in store" trend="up" />
+            </div>
+
+            {/* Recent Orders Preview */}
+            <div className="bg-black border border-white/10 rounded-xl overflow-hidden">
+                <div className="p-6 border-b border-white/10 flex justify-between items-center">
+                    <h3 className="text-lg font-outfit font-bold uppercase">Recent Orders</h3>
+                    <button onClick={() => router.push('/admin/orders')} className="text-xs uppercase tracking-widest text-grey-400 hover:text-white transition-colors">View All</button>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                        <thead className="bg-white/5 text-grey-400 uppercase tracking-wider text-xs font-bold">
+                            <tr>
+                                <th className="p-4">Order ID</th>
+                                <th className="p-4">Customer</th>
+                                <th className="p-4">Date</th>
+                                <th className="p-4">Status</th>
+                                <th className="p-4 text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/10">
+                            {mockOrders.slice(0, 5).map(order => (
+                                <tr key={order.id} className="hover:bg-white/5 transition-colors">
+                                    <td className="p-4 font-mono text-grey-300">{order.id}</td>
+                                    <td className="p-4 font-medium text-white">{order.customer}</td>
+                                    <td className="p-4 text-grey-500">{order.date}</td>
+                                    <td className="p-4">
+                                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${order.status === 'Delivered' ? 'border-green-500/30 text-green-400 bg-green-500/10' :
+                                                order.status === 'Processing' ? 'border-yellow-500/30 text-yellow-400 bg-yellow-500/10' :
+                                                    order.status === 'Cancelled' ? 'border-red-500/30 text-red-400 bg-red-500/10' :
+                                                        'border-blue-500/30 text-blue-400 bg-blue-500/10'
+                                            }`}>
+                                            {order.status}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-right font-mono text-white">₹{order.total.toLocaleString()}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
