@@ -1,12 +1,51 @@
 "use client";
-import React, { useState } from 'react';
-import { products } from '@/lib/data';
+import React, { useState, useEffect } from 'react';
+// import { products } from '@/lib/data'; // Removed static import
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function AdminProductsPage() {
     // Local state for search
     const [searchTerm, setSearchTerm] = useState('');
+    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await fetch('/api/products');
+                const data = await res.json();
+                if (data.success) {
+                    setProducts(data.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch products:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchProducts();
+    }, []);
+
+    const handleDelete = async (id) => {
+        if (!confirm('Are you sure you want to delete this product?')) return;
+
+        try {
+            const res = await fetch(`/api/products/${id}`, {
+                method: 'DELETE',
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                setProducts(prev => prev.filter(p => p._id !== id));
+            } else {
+                alert('Failed to delete product: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            alert('Error deleting product');
+        }
+    };
 
     const filteredProducts = products.filter(p =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -58,41 +97,51 @@ export default function AdminProductsPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/10">
-                            {filteredProducts.map(product => (
-                                <tr key={product.id} className="hover:bg-white/5 transition-colors group">
-                                    <td className="p-4">
-                                        <div className="relative w-12 h-16 bg-neutral-800 rounded overflow-hidden">
-                                            {/* Placeholder Image Logic */}
-                                            {product.images && product.images[0] ? (
-                                                <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-xs text-grey-600">Img</div>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="p-4 font-bold text-white">{product.name}</td>
-                                    <td className="p-4 text-grey-400">{product.category}</td>
-                                    <td className="p-4">
-                                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${product.inStock
-                                                ? 'border-green-500/30 text-green-400 bg-green-500/10'
-                                                : 'border-red-500/30 text-red-400 bg-red-500/10'
-                                            }`}>
-                                            {product.inStock ? 'In Stock' : 'Out of Stock'}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 text-right font-mono text-grey-300">₹{product.price.toLocaleString()}</td>
-                                    <td className="p-4 text-right">
-                                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="text-grey-400 hover:text-white p-2">
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                            </button>
-                                            <button className="text-grey-400 hover:text-red-500 p-2">
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                            </button>
-                                        </div>
-                                    </td>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan="6" className="p-8 text-center text-grey-500">Loading products...</td>
                                 </tr>
-                            ))}
+                            ) : filteredProducts.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="p-8 text-center text-grey-500">No products found.</td>
+                                </tr>
+                            ) : (
+                                filteredProducts.map(product => (
+                                    <tr key={product._id} className="hover:bg-white/5 transition-colors group">
+                                        <td className="p-4">
+                                            <div className="relative w-12 h-16 bg-neutral-800 rounded overflow-hidden">
+                                                {/* Placeholder Image Logic */}
+                                                {product.images && product.images[0] ? (
+                                                    <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-xs text-grey-600">Img</div>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="p-4 font-bold text-white">{product.name}</td>
+                                        <td className="p-4 text-grey-400">{product.category}</td>
+                                        <td className="p-4">
+                                            <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${product.inStock
+                                                    ? 'border-green-500/30 text-green-400 bg-green-500/10'
+                                                    : 'border-red-500/30 text-red-400 bg-red-500/10'
+                                                }`}>
+                                                {product.inStock ? 'In Stock' : 'Out of Stock'}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-right font-mono text-grey-300">₹{product.price.toLocaleString()}</td>
+                                        <td className="p-4 text-right">
+                                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Link href={`/admin/products/edit/${product._id}`} className="text-grey-400 hover:text-white p-2 inline-block">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                </Link>
+                                                <button onClick={() => handleDelete(product._id)} className="text-grey-400 hover:text-red-500 p-2">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

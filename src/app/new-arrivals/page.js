@@ -1,8 +1,31 @@
 import ProductGrid from '@/components/product/ProductGrid';
-import { products } from '@/lib/data';
+import dbConnect from '@/lib/db';
+import Product from '@/models/Product';
+import { unstable_noStore as noStore } from 'next/cache';
 
-export default function NewArrivalsPage() {
-    const newArrivals = products.filter(product => product.isNew);
+async function getNewArrivals() {
+    noStore();
+    try {
+        await dbConnect();
+        const products = await Product.find({}).sort({ createdAt: -1 }).limit(20).lean();
+        return products.map(product => ({
+            ...product,
+            _id: product._id.toString(),
+            id: product._id.toString(),
+            createdAt: product.createdAt?.toISOString(),
+            colors: product.colors?.map(c => ({
+                ...c,
+                _id: c._id ? c._id.toString() : undefined
+            })) || []
+        }));
+    } catch (error) {
+        console.error("Failed to fetch new arrivals", error);
+        return [];
+    }
+}
+
+export default async function NewArrivalsPage() {
+    const newArrivals = await getNewArrivals();
 
     return (
         <div className="pt-[80px]">

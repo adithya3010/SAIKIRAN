@@ -23,6 +23,17 @@ export default function CartItem({ item }) {
                 <div>
                     <h3 className="text-white font-medium mb-1 font-outfit uppercase tracking-wide text-sm">{item.name}</h3>
                     <p className="text-grey-400 text-sm mb-2">{item.category}</p>
+                    {/* Size and Color Display */}
+                    <div className="flex gap-3 text-xs text-grey-400 mb-2">
+                        {item.selectedSize && <span>Size: <span className="text-white">{item.selectedSize}</span></span>}
+                        {item.selectedColor && (
+                            <div className="flex items-center gap-1">
+                                <span>Color:</span>
+                                <span className="w-3 h-3 rounded-full border border-grey-600" style={{ backgroundColor: item.selectedColor.hex }}></span>
+                                <span className="text-white">{item.selectedColor.name}</span>
+                            </div>
+                        )}
+                    </div>
                     <p className="text-white font-semibold">₹{item.price.toFixed(2)}</p>
                 </div>
 

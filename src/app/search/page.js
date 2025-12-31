@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { products } from '@/lib/data';
 import FilterSidebar from '@/components/search/FilterSidebar';
 import FilterDrawer from '@/components/search/FilterDrawer';
 import ProductCard from '@/components/product/ProductCard';
@@ -14,6 +13,7 @@ function SearchContent() {
     // UI State
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
     const [localQuery, setLocalQuery] = useState(query);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Sync local input with URL query
     useEffect(() => {
@@ -52,7 +52,6 @@ function SearchContent() {
         }));
     };
 
-    // (Re-declaring clearFilters to NOT clear query based on typical e-commerce UX, or maybe just the side filters)
     const clearSideFilters = () => {
         setSelectedFilters({
             category: [],
@@ -64,47 +63,76 @@ function SearchContent() {
         setPriceRange([0, 20000]);
     }
 
-    // Filtering Logic
+    // Fetch Products from API
     useEffect(() => {
-        let results = products.filter(product => {
-            // 1. Search Query
-            if (query) {
-                const searchLower = query.toLowerCase();
-                const matchesName = product.name.toLowerCase().includes(searchLower);
-                const matchesCategory = product.category.toLowerCase().includes(searchLower);
-                if (!matchesName && !matchesCategory) return false;
+        const fetchProducts = async () => {
+            setIsLoading(true);
+            try {
+                // Construct API URL with params
+                const params = new URLSearchParams();
+                if (query) params.append('search', query);
+                params.append('sort', sortBy);
+
+                // Note: The API currently supports basic Search & Sort. 
+                // Complex filters (category array, price range) might need more advanced API logic 
+                // or we can filter client-side after fetching matching search results. 
+                // For MVP, let's fetch based on query/sort and filter the rest client side if API is limited,
+                // OR ideally send specific filters. 
+                // The current API implementation supports 'category' as single string.
+                // We'll fetch results matching 'search' and 'sort' from DB, 
+                // and then apply specific facet filters (fit, fabric, etc) client-side 
+                // to avoid building a massive query builder right now unless requested.
+
+                const res = await fetch(`/api/products?${params.toString()}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    let results = data.data.map(p => ({ ...p, id: p._id }));
+
+                    // Client-side Post-Filtering for facets not yet in API
+                    // 1. Price Range
+                    results = results.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
+
+                    // 2. Categories (Multiselect)
+                    if (selectedFilters.category.length > 0) {
+                        results = results.filter(p => selectedFilters.category.includes(p.category));
+                    }
+
+                    // 3. Fit
+                    if (selectedFilters.fit.length > 0) {
+                        results = results.filter(p => selectedFilters.fit.includes(p.fit));
+                    }
+
+                    // 4. Fabric
+                    if (selectedFilters.fabric.length > 0) {
+                        results = results.filter(p => selectedFilters.fabric.includes(p.fabric));
+                    }
+
+                    // 5. Occasion
+                    if (selectedFilters.occasion.length > 0) {
+                        results = results.filter(p => selectedFilters.occasion.includes(p.occasion));
+                    }
+
+                    // 6. Stock
+                    if (selectedFilters.inStock) {
+                        results = results.filter(p => p.inStock);
+                    }
+
+                    setFilteredProducts(results);
+                }
+            } catch (error) {
+                console.error("Error fetching search results:", error);
+            } finally {
+                setIsLoading(false);
             }
+        };
 
-            // 2. Price Range
-            if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
+        const timer = setTimeout(() => {
+            fetchProducts();
+        }, 300); // 300ms debounce
 
-            // 3. Categories
-            if (selectedFilters.category.length > 0 && !selectedFilters.category.includes(product.category)) return false;
+        return () => clearTimeout(timer);
 
-            // 4. Fit
-            if (selectedFilters.fit.length > 0 && !selectedFilters.fit.includes(product.fit)) return false;
-
-            // 5. Fabric
-            if (selectedFilters.fabric.length > 0 && !selectedFilters.fabric.includes(product.fabric)) return false;
-
-            // 6. Occasion
-            if (selectedFilters.occasion.length > 0 && !selectedFilters.occasion.includes(product.occasion)) return false;
-
-            // 7. Stock
-            if (selectedFilters.inStock && !product.inStock) return false;
-
-            return true;
-        });
-
-        // Sorting
-        results.sort((a, b) => {
-            if (sortBy === 'price-low-high') return a.price - b.price;
-            if (sortBy === 'price-high-low') return b.price - a.price;
-            if (sortBy === 'newest') return b.isNew ? 1 : -1;
-            return 0;
-        });
-
-        setFilteredProducts(results);
     }, [query, selectedFilters, priceRange, sortBy]);
 
 
@@ -188,10 +216,14 @@ function SearchContent() {
                         </div>
 
                         {/* Product Grid */}
-                        {filteredProducts.length > 0 ? (
+                        {isLoading ? (
+                            <div className="min-h-[40vh] flex items-center justify-center text-grey-500">
+                                Loading...
+                            </div>
+                        ) : filteredProducts.length > 0 ? (
                             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-12">
                                 {filteredProducts.map(product => (
-                                    <ProductCard key={product.id} product={product} />
+                                    <ProductCard key={product._id || product.id} product={product} />
                                 ))}
                             </div>
                         ) : (
