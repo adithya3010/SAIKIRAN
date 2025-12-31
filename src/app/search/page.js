@@ -1,12 +1,12 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { products } from '@/lib/data';
 import FilterSidebar from '@/components/search/FilterSidebar';
 import FilterDrawer from '@/components/search/FilterDrawer';
 import ProductCard from '@/components/product/ProductCard';
 
-export default function SearchPage() {
+function SearchContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const query = searchParams.get('q') || '';
@@ -220,5 +220,13 @@ export default function SearchPage() {
                 clearFilters={clearSideFilters}
             />
         </div>
+    );
+}
+
+export default function SearchPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-black text-white flex items-center justify-center">Loading...</div>}>
+            <SearchContent />
+        </Suspense>
     );
 }
