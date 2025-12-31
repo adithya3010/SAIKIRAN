@@ -2,6 +2,7 @@ import { Outfit, Inter } from "next/font/google";
 import Header from "@/components/layout/Header";
 import { Providers } from "@/components/layout/Providers";
 import CartDrawer from "@/components/cart/CartDrawer";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -32,6 +33,7 @@ export default function RootLayout({ children }) {
             {children}
           </main>
         </Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
