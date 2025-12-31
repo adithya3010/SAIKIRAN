@@ -146,6 +146,27 @@ export const filters = {
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 };
 
+export const collections = [
+    {
+        id: 1,
+        title: 'Monochrome Essentials',
+        description: 'The foundation of a modern wardrobe. Timeless black and white pieces.',
+        href: '/search?q=Essential'
+    },
+    {
+        id: 2,
+        title: 'Streetwear Edit',
+        description: 'Oversized fits and bold statements for the urban explorer.',
+        href: '/search?q=Streetwear'
+    },
+    {
+        id: 3,
+        title: 'Premium Knitwear',
+        description: 'Luxurious fabrics and textures for refined comfort.',
+        href: '/search?q=Knit'
+    }
+];
+
 export const getProductsByCategory = (category) => {
     return products.filter(product => product.category === category);
 };
