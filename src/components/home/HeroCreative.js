@@ -51,8 +51,8 @@ export default function HeroCreative() {
 
             // Apply to state with some smoothing/multiplier
             // Inverting X (pitch) usually feels more natural (tilt phone away = look up/down)
-            setRotateX(x * -1.5);
-            setRotateY(y * 1.5);
+            setRotateX(x * -0.5);
+            setRotateY(y * 0.5);
         };
 
         // Try to add listener immediately (works for Android/Desktop)
