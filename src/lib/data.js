@@ -192,12 +192,18 @@ export const mockUsers = [
 ];
 
 export const heroVariants = [
-    { id: 1, name: 'Minimalist Spotlight', description: 'Central focus with spotlight gradient', image: '/hero-1-preview.png' },
-    { id: 2, name: 'Split Screen Gradient', description: 'Left text, right image with dynamic gradient', image: '/hero-2-preview.png' },
-    { id: 3, name: 'Full Width Video', description: 'Background video loop with overlay text', image: '/hero-3-preview.png' },
-    { id: 4, name: 'Typography Bold', description: 'Large scale typography with overlapping elements', image: '/hero-4-preview.png' },
-    { id: 5, name: 'Grid Layout', description: 'Magazine style grid of multiple images', image: '/hero-5-preview.png' },
-    { id: 6, name: 'Asymmetric Float', description: 'Floating elements with parallax effect', image: '/hero-6-preview.png' }
+    {
+        id: 1,
+        name: 'Default Minimalist',
+        description: 'Original hero section with clean typography and model imagery.',
+        image: '/hero-default-preview.png'
+    },
+    {
+        id: 2,
+        name: 'Creative Revolution',
+        description: 'New interactive dark mode hero with 3D tilt effect and neon aesthetic.',
+        image: '/hero-creative-preview.png'
+    }
 ];
 
 // Simple in-memory storage simulation for demo purposes

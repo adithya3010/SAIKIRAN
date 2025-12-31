@@ -1,17 +1,65 @@
 "use client";
-import React, { useState } from 'react';
-import { heroVariants, activeHeroId, setActiveHeroId } from '@/lib/data';
+import React, { useState, useEffect } from 'react';
+import { heroVariants } from '@/lib/data';
 
 export default function HeroAdminPage() {
-    // Local state for immediate UI feedback mock
-    const [currentActiveId, setCurrentActiveId] = useState(activeHeroId);
+    const [currentActiveId, setCurrentActiveId] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
 
-    const handleApplyHero = (id) => {
-        setActiveHeroId(id);
-        setCurrentActiveId(id);
-        // In real app, this would be an API call
-        alert(`Hero Variant ${id} applied successfully!`);
+    // Fetch current setting on mount
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch('/api/admin/settings');
+                if (res.ok) {
+                    const data = await res.json();
+                    // Map 'default' -> 1, 'creative' -> 2 based on our data file or simple mapping
+                    // Let's assume heroVariants has IDs like 1 and 2.
+                    // If data.heroVariant is 'default', activeId is 1. If 'creative', activeId is 2.
+                    // We need to match this with what's in @/lib/data or just hardcode for now for safety.
+                    const variantMap = { 'default': 1, 'creative': 2 };
+                    setCurrentActiveId(variantMap[data.heroVariant] || 1);
+                }
+            } catch (error) {
+                console.error("Failed to load settings", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchSettings();
+    }, []);
+
+    const handleApplyHero = async (id) => {
+        setIsSaving(true);
+        try {
+            // Map ID back to string for DB
+            // 1 -> 'default', 2 -> 'creative'
+            const variantMap = { 1: 'default', 2: 'creative' };
+            const variantString = variantMap[id] || 'default';
+
+            const res = await fetch('/api/admin/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ heroVariant: variantString })
+            });
+
+            if (res.ok) {
+                setCurrentActiveId(id);
+                // Optional: Show toast
+            } else {
+                alert("Failed to save setting");
+            }
+        } catch (error) {
+            console.error("Failed to save setting", error);
+            alert("Error saving setting");
+        } finally {
+            setIsSaving(false);
+        }
     };
+
+    if (isLoading) return <div className="p-8 text-white">Loading...</div>;
 
     return (
         <div className="p-8 md:p-12 mb-20">
@@ -25,16 +73,13 @@ export default function HeroAdminPage() {
                     <div
                         key={hero.id}
                         className={`group relative bg-black border rounded-xl overflow-hidden transition-all duration-300 ${currentActiveId === hero.id
-                                ? 'border-white ring-2 ring-white/20'
-                                : 'border-white/10 hover:border-white/50'
+                            ? 'border-white ring-2 ring-white/20'
+                            : 'border-white/10 hover:border-white/50'
                             }`}
                     >
-                        {/* Preview Image Placeholder */}
+                        {/* Preview Image Placeholder - Using hero.image from data */}
                         <div className="aspect-video bg-neutral-900 relative">
-                            {/* <Image src={hero.image} fill className="object-cover" /> */}
-                            <div className="absolute inset-0 flex items-center justify-center text-grey-600 font-mono text-xs uppercase">
-                                Preview: {hero.name}
-                            </div>
+                            <img src={hero.image} alt={hero.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
 
                             {/* Active Badge */}
                             {currentActiveId === hero.id && (
@@ -50,13 +95,13 @@ export default function HeroAdminPage() {
 
                             <button
                                 onClick={() => handleApplyHero(hero.id)}
-                                disabled={currentActiveId === hero.id}
+                                disabled={currentActiveId === hero.id || isSaving}
                                 className={`w-full py-3 px-4 rounded-lg font-bold uppercase tracking-widest text-sm transition-colors ${currentActiveId === hero.id
-                                        ? 'bg-neutral-800 text-grey-500 cursor-not-allowed'
-                                        : 'bg-white text-black hover:bg-grey-200'
+                                    ? 'bg-neutral-800 text-grey-500 cursor-not-allowed'
+                                    : 'bg-white text-black hover:bg-grey-200'
                                     }`}
                             >
-                                {currentActiveId === hero.id ? 'Currently Active' : 'Apply Design'}
+                                {currentActiveId === hero.id ? 'Currently Active' : (isSaving ? 'Applying...' : 'Apply Design')}
                             </button>
                         </div>
                     </div>

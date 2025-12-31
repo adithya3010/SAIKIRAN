@@ -1,9 +1,11 @@
+import Hero from '@/components/home/Hero';
 import HeroCreative from '@/components/home/HeroCreative';
 import FeaturedCollections from '@/components/home/FeaturedCollections';
 import ProductGrid from '@/components/product/ProductGrid';
 import Footer from '@/components/layout/Footer';
 import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
+import SiteSettings from '@/models/SiteSettings'; // Import Settings model
 import { unstable_noStore as noStore } from 'next/cache';
 
 async function getNewArrivals() {
@@ -52,12 +54,28 @@ async function getNewArrivals() {
   }
 }
 
+async function getSiteSettings() {
+  noStore();
+  try {
+    await dbConnect();
+    const settings = await SiteSettings.findOne();
+    return settings || { heroVariant: 'default' };
+  } catch (error) {
+    console.error("Failed to fetch site settings:", error);
+    return { heroVariant: 'default' };
+  }
+}
+
 export default async function Home() {
   const newArrivals = await getNewArrivals();
+  const settings = await getSiteSettings();
+
+  // Determine which hero to show
+  const HeroComponent = settings.heroVariant === 'creative' ? HeroCreative : Hero;
 
   return (
     <>
-      <HeroCreative />
+      <HeroComponent />
       <FeaturedCollections />
       <ProductGrid title="New Arrivals" products={newArrivals} />
       <Footer />

@@ -6,27 +6,82 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function HeroCreative() {
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const containerRef = useRef(null);
+
+    // Calculate rotation based on mouse position
+    const [rotateX, setRotateX] = useState(0);
+    const [rotateY, setRotateY] = useState(0);
 
     const handleMouseMove = (e) => {
         if (!containerRef.current) return;
         const { left, top, width, height } = containerRef.current.getBoundingClientRect();
         const x = (e.clientX - left) / width - 0.5;
         const y = (e.clientY - top) / height - 0.5;
-        setMousePosition({ x, y });
+
+        // Mouse gives us -0.5 to 0.5
+        // Map to -10 to 10 degrees
+        setRotateX(y * 20);
+        setRotateY(x * -20);
     };
 
     const handleMouseLeave = () => {
-        setMousePosition({ x: 0, y: 0 });
+        setRotateX(0);
+        setRotateY(0);
     };
 
-    // Calculate rotation based on mouse position
-    const rotateX = mousePosition.y * 10; // Max 5 degrees
-    const rotateY = mousePosition.x * -10; // Max 5 degrees
+    // Mobile Gyroscope Effect
+    useEffect(() => {
+        const handleOrientation = (e) => {
+            const { beta, gamma } = e;
+            if (beta === null || gamma === null) return;
+
+            // beta: front-to-back [-180, 180]
+            // gamma: left-to-right [-90, 90]
+
+            // Calibrate 'zero' to a standard holding angle of 45 degrees
+            // Sensitivity multiplier: 1.5x for more visible effect
+            const pitch = beta - 45;
+            const roll = gamma;
+
+            // Clamp max tilt to prevent extreme flipping
+            const MAX_TILT = 20;
+
+            const x = Math.min(Math.max(pitch, -MAX_TILT), MAX_TILT);
+            const y = Math.min(Math.max(roll, -MAX_TILT), MAX_TILT);
+
+            // Apply to state with some smoothing/multiplier
+            // Inverting X (pitch) usually feels more natural (tilt phone away = look up/down)
+            setRotateX(x * -1.5);
+            setRotateY(y * 1.5);
+        };
+
+        // Try to add listener immediately (works for Android/Desktop)
+        window.addEventListener('deviceorientation', handleOrientation);
+        return () => window.removeEventListener('deviceorientation', handleOrientation);
+    }, []);
+
+    // iOS requires explicit user permission for sensors
+    const handleInteraction = () => {
+        if (typeof DeviceOrientationEvent !== 'undefined' &&
+            typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                    if (response === 'granted') {
+                        // Listener will be active from useEffect, if not, re-add here
+                    }
+                })
+                .catch(console.error);
+        }
+    };
 
     return (
-        <section className={styles.heroSection} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} ref={containerRef}>
+        <section
+            className={styles.heroSection}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onClick={handleInteraction} // Capture click for iOS permission
+            ref={containerRef}
+        >
             <div className={styles.backgroundGrid}></div>
             <div className={styles.brandWatermark}></div>
 
