@@ -4,13 +4,13 @@ import Link from "next/link";
 
 export default function Hero() {
     return (
-        <section className="relative min-h-screen w-full bg-black flex flex-col md:flex-row items-center justify-center overflow-hidden">
+        <section className="relative min-h-[calc(100vh-80px)] w-full bg-black flex flex-col md:flex-row items-center justify-center overflow-hidden">
 
             {/* Background Gradient - Spotlight Effect */}
             <div className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(circle_at_80%_50%,_#404040_0%,_#1a1a1a_40%,_#000000_80%)] opacity-80" />
 
             {/* Content Container */}
-            <div className="container mx-auto px-4 md:px-8 lg:px-16 flex flex-col md:flex-row items-center justify-between z-10 h-full pt-28 md:pt-0">
+            <div className="container mx-auto px-4 md:px-8 lg:px-16 flex flex-col md:flex-row items-center justify-between z-10 h-full">
 
                 {/* Left Side: Text & Buttons */}
                 <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left z-10">

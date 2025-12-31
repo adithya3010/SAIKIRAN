@@ -1,6 +1,6 @@
 import { Outfit, Inter } from "next/font/google";
 import Header from "@/components/layout/Header";
-import { CartProvider } from "@/context/CartContext";
+import { Providers } from "@/components/layout/Providers";
 import CartDrawer from "@/components/cart/CartDrawer";
 import "./globals.css";
 
@@ -25,13 +25,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${outfit.variable} ${inter.variable}`}>
       <body>
-        <CartProvider>
+        <Providers>
           <Header />
           <CartDrawer />
-          <main>
+          <main className="pt-[80px]">
             {children}
           </main>
-        </CartProvider>
+        </Providers>
       </body>
     </html>
   );

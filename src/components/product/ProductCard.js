@@ -1,28 +1,86 @@
-import Button from '../ui/Button';
+"use client";
+import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ProductCard({ product }) {
-    return (
-        <Link href={`/product/${product.id}`} className="group relative cursor-pointer block">
-            <div className="relative w-full aspect-[3/4] bg-grey-100 overflow-hidden mb-2">
-                {/* Placeholder for Product Image */}
-                <div className="w-full h-full bg-gradient-to-b from-grey-800 to-black transition-transform duration-500Group group-hover:scale-105" />
+    const [isHovered, setIsHovered] = useState(false);
 
-                <div className="absolute bottom-0 left-0 w-full p-4 opacity-0 translate-y-2 transition-all duration-300 flex justify-center group-hover:opacity-100 group-hover:translate-y-0">
-                    <Button variant="solid" size="sm" className="w-full">
-                        Quick Add
-                    </Button>
+    // Provide fallback images if array is empty or short
+    const mainImage = product.images?.[0] || '/placeholder.png'; // You might want a real placeholder
+    const hoverImage = product.images?.[1] || mainImage;
+
+    return (
+        <div
+            className="group relative flex flex-col"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            {/* Image Container */}
+            <Link href={`/product/${product.id}`} className="relative w-full aspect-[3/4] bg-grey-900 overflow-hidden mb-4">
+                <Image
+                    src={mainImage}
+                    alt={product.name}
+                    fill
+                    className={`object-cover object-center transition-opacity duration-500 ease-in-out ${isHovered ? 'opacity-0' : 'opacity-100'}`}
+                />
+                <Image
+                    src={hoverImage}
+                    alt={`${product.name} alternate view`}
+                    fill
+                    className={`object-cover object-center transition-opacity duration-500 ease-in-out absolute inset-0 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+                />
+
+                {/* Badges */}
+                <div className="absolute top-3 left-3 flex flex-col gap-2">
+                    {product.isNew && (
+                        <span className="bg-white text-black text-[10px] font-bold px-2 py-1 uppercase tracking-widest">
+                            New
+                        </span>
+                    )}
+                    {!product.inStock && (
+                        <span className="bg-neutral-800 text-white text-[10px] font-bold px-2 py-1 uppercase tracking-widest">
+                            Sold Out
+                        </span>
+                    )}
                 </div>
-                {product.isNew && (
-                    <span className="absolute top-2 left-2 bg-white text-black px-2 py-1 text-xs font-semibold uppercase tracking-wider">
-                        New
-                    </span>
+
+                {/* Quick Add (Optional/Future) */}
+                <div className={`absolute bottom-0 left-0 w-full bg-white/10 backdrop-blur-md p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 hidden md:flex items-center justify-center`}>
+                    <span className="text-white text-xs uppercase tracking-widest font-bold">Quick View</span>
+                </div>
+            </Link>
+
+            {/* Product Info */}
+            <div className="flex flex-col gap-1">
+                <div className="flex justify-between items-start">
+                    <Link href={`/product/${product.id}`}>
+                        <h3 className="text-sm md:text-base font-outfit uppercase tracking-wide text-white group-hover:text-grey-300 transition-colors line-clamp-1">
+                            {product.name}
+                        </h3>
+                    </Link>
+                    <p className="text-sm font-medium text-grey-400">₹{product.price.toLocaleString('en-IN')}</p>
+                </div>
+
+                {/* Color Dots */}
+                {product.colors && product.colors.length > 0 && (
+                    <div className="flex gap-2 mt-1">
+                        {product.colors.map((color, index) => (
+                            <div
+                                key={index}
+                                className="w-3 h-3 rounded-full border border-grey-800"
+                                style={{ backgroundColor: color.hex }}
+                                title={color.name}
+                            />
+                        ))}
+                    </div>
                 )}
+
+                {/* Size Range (Optional) */}
+                <div className="text-[10px] text-grey-600 uppercase tracking-wider mt-1">
+                    {product.sizes?.join(' · ')}
+                </div>
             </div>
-            <div className="flex justify-between items-start">
-                <h3 className="text-sm font-normal text-white mb-1 group-hover:text-grey-300 transition-colors">{product.name}</h3>
-                <p className="text-sm font-semibold text-grey-400">₹{product.price.toFixed(2)}</p>
-            </div>
-        </Link>
+        </div>
     );
 }

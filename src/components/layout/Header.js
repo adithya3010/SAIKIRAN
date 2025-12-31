@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSession } from "next-auth/react";
 import { useCart } from '@/context/CartContext';
 import SearchModal from '../search/SearchModal';
 
@@ -20,6 +21,7 @@ const ShoppingBagIcon = () => (
 export default function Header() {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const { toggleCart, cartCount } = useCart();
+    const { data: session } = useSession();
 
     return (
         <>
@@ -49,7 +51,11 @@ export default function Header() {
                             <SearchIcon />
                         </button>
 
-                        <Link href="/account" className="text-white hover:text-grey-300 transition-colors" aria-label="Account">
+                        <Link
+                            href={session ? (session.user.role === 'admin' ? "/admin/dashboard" : "/account") : "/login"}
+                            className="text-white hover:text-grey-300 transition-colors"
+                            aria-label="Account"
+                        >
                             <UserIcon />
                         </Link>
 
