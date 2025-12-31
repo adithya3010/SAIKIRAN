@@ -171,7 +171,7 @@
     /* Neon glow effect behind image */
 }
 
-.glow {
+/* .glow {
     position: absolute;
     width: 400px;
     height: 400px;
@@ -183,7 +183,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-}
+} */
 
 @media (max-width: 1024px) {
     .headline {
