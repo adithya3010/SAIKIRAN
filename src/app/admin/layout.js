@@ -12,7 +12,7 @@ export default function AdminLayout({ children }) {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-900 text-white flex">
+        <div className="min-h-screen bg-background text-foreground flex transition-colors duration-300">
             <AdminSidebar />
             <main className="flex-1 ml-64 min-h-screen">
                 {children}

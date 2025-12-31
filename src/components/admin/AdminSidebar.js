@@ -12,8 +12,8 @@ const NavItem = ({ href, label, icon: Icon }) => {
         <Link
             href={href}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive
-                    ? 'bg-white text-black font-medium'
-                    : 'text-grey-400 hover:text-white hover:bg-white/5'
+                ? 'bg-white text-black font-medium'
+                : 'text-grey-400 hover:text-white hover:bg-white/5'
                 }`}
         >
             <Icon className={`w-5 h-5 ${isActive ? 'stroke-black' : 'stroke-current'}`} />
@@ -32,18 +32,18 @@ const SettingsIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" 
 
 export default function AdminSidebar() {
     return (
-        <div className="w-64 h-screen bg-black border-r border-white/10 flex flex-col fixed left-0 top-0 overflow-y-auto z-50">
+        <div className="w-64 h-screen bg-background border-r border-border-secondary flex flex-col fixed left-0 top-0 overflow-y-auto z-50 transition-colors duration-300">
             {/* Brand */}
-            <div className="p-8 border-b border-white/10">
+            <div className="p-8 border-b border-border-secondary">
                 <Link href="/" className="block relative w-32 h-16">
                     <Image
                         src="/brand.png"
                         alt="MAY BE NOT"
                         fill
-                        className="object-contain object-left filter invert"
+                        className="object-contain object-left dark:invert"
                     />
                 </Link>
-                <div className="mt-2 text-xs font-mono text-grey-500 uppercase">Admin Console</div>
+                <div className="mt-2 text-xs font-mono text-text-muted uppercase">Admin Console</div>
             </div>
 
             {/* Nav */}
@@ -57,12 +57,12 @@ export default function AdminSidebar() {
             </nav>
 
             {/* Footer */}
-            <div className="p-4 border-t border-white/10">
+            <div className="p-4 border-t border-border-secondary">
                 <div className="flex items-center gap-3 px-4 py-3">
-                    <div className="w-8 h-8 bg-grey-800 rounded-full flex items-center justify-center text-xs font-bold text-white">AD</div>
+                    <div className="w-8 h-8 bg-bg-tertiary rounded-full flex items-center justify-center text-xs font-bold text-foreground">AD</div>
                     <div className="overflow-hidden">
-                        <p className="text-sm font-bold text-white truncate">Admin User</p>
-                        <p className="text-xs text-grey-500 truncate">admin@maybenot.com</p>
+                        <p className="text-sm font-bold text-foreground truncate">Admin User</p>
+                        <p className="text-xs text-text-muted truncate">admin@maybenot.com</p>
                     </div>
                 </div>
             </div>

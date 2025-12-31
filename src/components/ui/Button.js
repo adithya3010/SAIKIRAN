@@ -11,7 +11,8 @@ export default function Button({ children, variant = 'solid', size = 'md', class
     const sizes = {
         sm: 'h-8 px-4 text-xs',
         md: 'h-12 px-8 text-sm',
-        lg: 'h-14 px-12 text-base'
+        lg: 'h-14 px-12 text-base',
+        xl: 'h-16 px-14 text-lg'
     };
 
     return (

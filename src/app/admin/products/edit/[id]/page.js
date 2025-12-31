@@ -244,46 +244,46 @@ export default function EditProductPage() {
 
     return (
         <div className="p-8 md:p-12 pb-20 max-w-4xl mx-auto">
-            <h1 className="text-4xl font-outfit font-bold uppercase mb-2">Edit Product</h1>
-            <p className="text-grey-400 mb-10">Update product details.</p>
+            <h1 className="text-4xl font-outfit font-bold uppercase mb-2 text-foreground">Edit Product</h1>
+            <p className="text-text-muted mb-10">Update product details.</p>
 
             <form onSubmit={handleSubmit} className="space-y-12">
                 {/* Basic Info */}
                 <div className="space-y-6">
-                    <h2 className="text-xl font-bold border-b border-white/10 pb-4">Basic Information</h2>
+                    <h2 className="text-xl font-bold border-b border-border-primary pb-4 text-foreground">Basic Information</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-grey-400">Product Name</label>
-                            <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full bg-neutral-900 border border-white/10 p-3 rounded text-white focus:border-white outline-none" required />
+                            <label className="text-xs uppercase tracking-widest text-text-muted">Product Name</label>
+                            <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full bg-bg-secondary border border-border-primary p-3 rounded text-foreground focus:border-foreground outline-none transition-colors" required />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-grey-400">Category</label>
-                            <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-neutral-900 border border-white/10 p-3 rounded text-white focus:border-white outline-none">
+                            <label className="text-xs uppercase tracking-widest text-text-muted">Category</label>
+                            <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-bg-secondary border border-border-primary p-3 rounded text-foreground focus:border-foreground outline-none transition-colors">
                                 {filters.categories.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-xs uppercase tracking-widest text-grey-400">Description</label>
-                        <textarea name="description" value={formData.description} onChange={handleChange} rows="4" className="w-full bg-neutral-900 border border-white/10 p-3 rounded text-white focus:border-white outline-none" required></textarea>
+                        <label className="text-xs uppercase tracking-widest text-text-muted">Description</label>
+                        <textarea name="description" value={formData.description} onChange={handleChange} rows="4" className="w-full bg-bg-secondary border border-border-primary p-3 rounded text-foreground focus:border-foreground outline-none transition-colors" required></textarea>
                     </div>
                 </div>
 
                 {/* Pricing & Inventory */}
                 <div className="space-y-6">
-                    <h2 className="text-xl font-bold border-b border-white/10 pb-4">Pricing & Inventory</h2>
+                    <h2 className="text-xl font-bold border-b border-border-primary pb-4 text-foreground">Pricing & Inventory</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-grey-400">Price (₹)</label>
-                            <input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full bg-neutral-900 border border-white/10 p-3 rounded text-white focus:border-white outline-none" required min="0" />
+                            <label className="text-xs uppercase tracking-widest text-text-muted">Price (₹)</label>
+                            <input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full bg-bg-secondary border border-border-primary p-3 rounded text-foreground focus:border-foreground outline-none transition-colors" required min="0" />
                         </div>
                         <div className="flex items-center gap-4 pt-8">
                             <label className="flex items-center gap-3 cursor-pointer group">
-                                <div className={`w-5 h-5 border rounded flex items-center justify-center transition-colors ${formData.inStock ? 'bg-white border-white' : 'border-grey-600'}`}>
-                                    {formData.inStock && <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                                <div className={`w-5 h-5 border rounded flex items-center justify-center transition-colors ${formData.inStock ? 'bg-foreground border-foreground' : 'border-text-muted'}`}>
+                                    {formData.inStock && <svg className="w-3 h-3 text-background" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                                 </div>
                                 <input type="checkbox" name="inStock" checked={formData.inStock} onChange={handleChange} className="hidden" />
-                                <span className="text-sm font-bold uppercase tracking-widest group-hover:text-white transition-colors">In Stock</span>
+                                <span className="text-sm font-bold uppercase tracking-widest group-hover:text-foreground transition-colors text-text-muted">In Stock</span>
                             </label>
                         </div>
                     </div>
@@ -291,27 +291,27 @@ export default function EditProductPage() {
 
                 {/* Details */}
                 <div className="space-y-6">
-                    <h2 className="text-xl font-bold border-b border-white/10 pb-4">Product Details</h2>
+                    <h2 className="text-xl font-bold border-b border-border-primary pb-4 text-foreground">Product Details</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-grey-400">Fit</label>
-                            <select name="fit" value={formData.fit} onChange={handleChange} className="w-full bg-neutral-900 border border-white/10 p-3 rounded text-white focus:border-white outline-none">
+                            <label className="text-xs uppercase tracking-widest text-text-muted">Fit</label>
+                            <select name="fit" value={formData.fit} onChange={handleChange} className="w-full bg-bg-secondary border border-border-primary p-3 rounded text-foreground focus:border-foreground outline-none transition-colors">
                                 {filters.fits.map(f => <option key={f} value={f}>{f}</option>)}
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-grey-400">Fabric</label>
-                            <input type="text" name="fabric" value={formData.fabric} onChange={handleChange} className="w-full bg-neutral-900 border border-white/10 p-3 rounded text-white focus:border-white outline-none" placeholder="e.g. 100% Cotton" required />
+                            <label className="text-xs uppercase tracking-widest text-text-muted">Fabric</label>
+                            <input type="text" name="fabric" value={formData.fabric} onChange={handleChange} className="w-full bg-bg-secondary border border-border-primary p-3 rounded text-foreground focus:border-foreground outline-none transition-colors" placeholder="e.g. 100% Cotton" required />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-grey-400">Print Type</label>
-                            <select name="printType" value={formData.printType} onChange={handleChange} className="w-full bg-neutral-900 border border-white/10 p-3 rounded text-white focus:border-white outline-none">
+                            <label className="text-xs uppercase tracking-widest text-text-muted">Print Type</label>
+                            <select name="printType" value={formData.printType} onChange={handleChange} className="w-full bg-bg-secondary border border-border-primary p-3 rounded text-foreground focus:border-foreground outline-none transition-colors">
                                 {filters.printTypes.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-grey-400">Occasion</label>
-                            <select name="occasion" value={formData.occasion} onChange={handleChange} className="w-full bg-neutral-900 border border-white/10 p-3 rounded text-white focus:border-white outline-none">
+                            <label className="text-xs uppercase tracking-widest text-text-muted">Occasion</label>
+                            <select name="occasion" value={formData.occasion} onChange={handleChange} className="w-full bg-bg-secondary border border-border-primary p-3 rounded text-foreground focus:border-foreground outline-none transition-colors">
                                 {filters.occasions.map(o => <option key={o} value={o}>{o}</option>)}
                             </select>
                         </div>
@@ -320,8 +320,8 @@ export default function EditProductPage() {
 
                 {/* Images */}
                 <div className="space-y-6">
-                    <h2 className="text-xl font-bold border-b border-white/10 pb-4">Images</h2>
-                    <p className="text-xs text-grey-500">Upload product images.</p>
+                    <h2 className="text-xl font-bold border-b border-border-primary pb-4 text-foreground">Images</h2>
+                    <p className="text-xs text-text-muted">Upload product images.</p>
 
                     {formData.images.map((url, index) => (
                         <div key={index} className="flex gap-4 items-center">
@@ -331,18 +331,18 @@ export default function EditProductPage() {
                                         type="file"
                                         accept="image/*"
                                         onChange={(e) => handleFileUpload(index, e)}
-                                        className="w-full bg-neutral-900 border border-white/10 p-3 rounded text-white focus:border-white outline-none text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-black hover:file:bg-grey-200"
+                                        className="w-full bg-bg-secondary border border-border-primary p-3 rounded text-foreground focus:border-foreground outline-none text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-foreground file:text-background hover:file:opacity-90 transition-colors"
                                     />
                                 ) : (
-                                    <div className="flex items-center gap-4 bg-neutral-900 p-2 rounded border border-white/10">
-                                        <div className="relative w-16 h-16 bg-black rounded overflow-hidden">
+                                    <div className="flex items-center gap-4 bg-bg-secondary p-2 rounded border border-border-primary">
+                                        <div className="relative w-16 h-16 bg-bg-tertiary rounded overflow-hidden">
                                             <Image src={url} alt="Preview" fill className="object-cover" />
                                         </div>
-                                        <span className="text-xs text-grey-400 truncate flex-1">{url}</span>
+                                        <span className="text-xs text-text-muted truncate flex-1">{url}</span>
                                         <button
                                             type="button"
                                             onClick={() => handleArrayChange(index, '', 'images')}
-                                            className="text-white hover:text-red-400 text-xs uppercase underline p-2"
+                                            className="text-foreground hover:text-red-400 text-xs uppercase underline p-2"
                                         >
                                             Change
                                         </button>
@@ -360,7 +360,7 @@ export default function EditProductPage() {
 
                     {uploading && <p className="text-xs text-yellow-500 animate-pulse">Uploading...</p>}
 
-                    <button type="button" onClick={() => addArrayItem('images')} className="text-xs font-bold uppercase tracking-widest text-white border-b border-white hover:text-grey-300 hover:border-grey-300">
+                    <button type="button" onClick={() => addArrayItem('images')} className="text-xs font-bold uppercase tracking-widest text-foreground border-b border-foreground hover:text-text-muted hover:border-text-muted transition-colors">
                         + Add Another Image
                     </button>
                 </div>
@@ -368,11 +368,11 @@ export default function EditProductPage() {
 
                 {/* Variants Configuration */}
                 <div className="space-y-6">
-                    <h2 className="text-xl font-bold border-b border-white/10 pb-4">Variants Configuration</h2>
+                    <h2 className="text-xl font-bold border-b border-border-primary pb-4 text-foreground">Variants Configuration</h2>
 
                     {/* Step 1: Sizes */}
                     <div className="space-y-4">
-                        <label className="text-xs uppercase tracking-widest text-grey-400">1. Select Available Sizes</label>
+                        <label className="text-xs uppercase tracking-widest text-text-muted">1. Select Available Sizes</label>
                         <div className="flex flex-wrap gap-3">
                             {filters.sizes.map(size => (
                                 <button
@@ -380,8 +380,8 @@ export default function EditProductPage() {
                                     type="button"
                                     onClick={() => toggleSize(size)}
                                     className={`w-12 h-12 rounded border flex items-center justify-center text-sm font-bold transition-all ${formData.sizes.includes(size)
-                                        ? 'bg-white text-black border-white'
-                                        : 'bg-transparent text-grey-500 border-white/10 hover:border-white/50'
+                                        ? 'bg-foreground text-background border-foreground'
+                                        : 'bg-transparent text-text-muted border-border-primary hover:border-foreground'
                                         }`}
                                 >
                                     {size}
@@ -392,21 +392,21 @@ export default function EditProductPage() {
 
                     {/* Step 2: Colors */}
                     <div className="space-y-4 pt-4">
-                        <label className="text-xs uppercase tracking-widest text-grey-400">2. Define Colors</label>
+                        <label className="text-xs uppercase tracking-widest text-text-muted">2. Define Colors</label>
                         {formData.colors.map((color, index) => (
-                            <div key={index} className="flex gap-4 items-end bg-neutral-900 p-4 rounded border border-white/5">
+                            <div key={index} className="flex gap-4 items-end bg-bg-secondary p-4 rounded border border-border-primary">
                                 <div className="space-y-2 flex-1">
-                                    <label className="text-[10px] uppercase text-grey-500">Name</label>
+                                    <label className="text-[10px] uppercase text-text-muted">Name</label>
                                     <input
                                         type="text"
                                         value={color.name}
                                         onChange={(e) => handleColorChange(index, 'name', e.target.value)}
-                                        className="w-full bg-black border border-white/10 p-2 rounded text-white focus:border-white outline-none text-sm"
+                                        className="w-full bg-bg-tertiary border border-border-primary p-2 rounded text-foreground focus:border-foreground outline-none text-sm transition-colors"
                                         placeholder="e.g. Midnight Black"
                                     />
                                 </div>
                                 <div className="space-y-2 w-32">
-                                    <label className="text-[10px] uppercase text-grey-500">Hex Code</label>
+                                    <label className="text-[10px] uppercase text-text-muted">Hex Code</label>
                                     <div className="flex items-center gap-2">
                                         <input
                                             type="color"
@@ -414,7 +414,7 @@ export default function EditProductPage() {
                                             onChange={(e) => handleColorChange(index, 'hex', e.target.value)}
                                             className="w-10 h-10 rounded cursor-pointer bg-transparent border-none"
                                         />
-                                        <span className="text-xs text-grey-400 font-mono">{color.hex}</span>
+                                        <span className="text-xs text-text-muted font-mono">{color.hex}</span>
                                     </div>
                                 </div>
                                 {formData.colors.length > 1 && (
@@ -424,29 +424,29 @@ export default function EditProductPage() {
                                 )}
                             </div>
                         ))}
-                        <button type="button" onClick={addColor} className="text-xs font-bold uppercase tracking-widest text-white border-b border-white hover:text-grey-300 hover:border-grey-300">
+                        <button type="button" onClick={addColor} className="text-xs font-bold uppercase tracking-widest text-foreground border-b border-foreground hover:text-text-muted hover:border-text-muted transition-colors">
                             + Add Another Color
                         </button>
                     </div>
 
                     {/* Step 3: Stock Matrix */}
                     {formData.variants.length > 0 && (
-                        <div className="space-y-4 pt-8 border-t border-white/10">
-                            <label className="text-xs uppercase tracking-widest text-grey-400">3. Manage Stock (SKU Level)</label>
+                        <div className="space-y-4 pt-8 border-t border-border-primary">
+                            <label className="text-xs uppercase tracking-widest text-text-muted">3. Manage Stock (SKU Level)</label>
                             <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm text-grey-400">
-                                    <thead className="text-xs uppercase bg-white/5 text-white">
+                                <table className="w-full text-left text-sm text-text-muted">
+                                    <thead className="text-xs uppercase bg-bg-tertiary text-foreground">
                                         <tr>
                                             <th className="px-4 py-3">Color</th>
                                             <th className="px-4 py-3">Size</th>
                                             <th className="px-4 py-3">Stock Quantity</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/5">
+                                    <tbody className="divide-y divide-border-primary">
                                         {formData.variants.map((variant, index) => (
-                                            <tr key={`${variant.color.name}-${variant.size}-${index}`} className="hover:bg-white/5">
+                                            <tr key={`${variant.color.name}-${variant.size}-${index}`} className="hover:bg-bg-tertiary transition-colors">
                                                 <td className="px-4 py-3 flex items-center gap-2">
-                                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: variant.color.hex }}></div>
+                                                    <div className="w-3 h-3 rounded-full border border-border-primary" style={{ backgroundColor: variant.color.hex }}></div>
                                                     {variant.color.name}
                                                 </td>
                                                 <td className="px-4 py-3 font-mono">{variant.size}</td>
@@ -455,7 +455,7 @@ export default function EditProductPage() {
                                                         type="number"
                                                         value={variant.stock}
                                                         onChange={(e) => handleVariantStockChange(index, e.target.value)}
-                                                        className="w-24 bg-black border border-white/10 p-2 rounded text-white focus:border-white outline-none text-right"
+                                                        className="w-24 bg-bg-tertiary border border-border-primary p-2 rounded text-foreground focus:border-foreground outline-none text-right transition-colors"
                                                         min="0"
                                                     />
                                                 </td>
@@ -469,8 +469,8 @@ export default function EditProductPage() {
                 </div>
 
                 {/* Submit Action */}
-                <div className="pt-8 border-t border-white/10 flex justify-end">
-                    <button type="submit" disabled={isSaving} className={`bg-white text-black px-10 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-grey-200 transition-all ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <div className="pt-8 border-t border-border-primary flex justify-end">
+                    <button type="submit" disabled={isSaving} className={`bg-foreground text-background px-10 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-foreground/90 transition-all ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}>
                         {isSaving ? 'Saving...' : 'Save Changes'}
                     </button>
                 </div>

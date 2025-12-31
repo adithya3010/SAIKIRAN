@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center p-24 bg-black text-white">
+        <div className="flex min-h-screen flex-col items-center justify-center p-24 bg-background text-foreground transition-colors duration-300">
             <div className="w-full max-w-md space-y-8">
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-red-500">
@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
                                 name="email"
                                 type="email"
                                 required
-                                className="relative block w-full rounded-t-md border-0 bg-white/10 py-1.5 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6 px-3"
+                                className="relative block w-full rounded-t-md border-0 bg-bg-secondary py-1.5 text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6 px-3"
                                 placeholder="Admin Email"
                                 value={data.email}
                                 onChange={(e) => setData({ ...data, email: e.target.value })}
@@ -69,7 +69,7 @@ export default function AdminLoginPage() {
                                 name="password"
                                 type="password"
                                 required
-                                className="relative block w-full rounded-b-md border-0 bg-white/10 py-1.5 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6 px-3 mt-2"
+                                className="relative block w-full rounded-b-md border-0 bg-bg-secondary py-1.5 text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6 px-3 mt-2"
                                 placeholder="Password"
                                 value={data.password}
                                 onChange={(e) => setData({ ...data, password: e.target.value })}

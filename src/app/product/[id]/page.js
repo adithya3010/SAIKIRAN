@@ -114,33 +114,15 @@ export default async function ProductPage({ params }) {
     const recommendedProducts = await getRecommendedProducts(product.category, product._id);
 
     return (
-        <div className="pt-[100px] pb-20 bg-black text-white min-h-screen">
-            {/* Note: User wanted a specific style. 
-               The screenshot showed a White background UI ("thehouseofrare.com" style).
-               However, the current app is dark mode ("bg-black").
-               Transitioning this specific page to Light Mode might clash with Header/Footer if they are forced Dark.
-               
-               Let's check the global style. The user said "all over the website it should load products from mongo" 
-               and "update the product info page like screenshot". The screenshot IS light mode.
-               BUT the rest of the site is Dark Mode (Monochrome Black).
-               
-               DECISION: I will keep the DARK MODE to match the brand `MAY BE NOT` / `KSHRA` which is dark.
-               I will adapt the LAYOUT of the screenshot (Right side details, accordions, etc.) but keep the COLORS dark.
-               Unless the user explicitly asked for Light Mode rebranding.
-               "Hero Section Rebranding" context earlier was "Monochrome", usually implying B&W.
-               I will stick to active Dark Theme but use the LAYOUT features.
-               If I use `bg-white` here it will look broken with the fixed black header.
-               
-               Reverting `bg-white` to `bg-black` but using the layout.
-            */}
+        <div className="pt-[100px] pb-20 bg-background text-foreground min-h-screen transition-colors duration-300">
+            {/* Semantic colors applied for Global Light/Dark mode support */}
 
             <div className="max-w-[1400px] mx-auto px-4 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
                     {/* Left: Images (Grid or Slider) */}
-                    {/* Screenshot shows a large main image. Let's do a grid of 2 or a large one. */}
                     <div className="lg:col-span-7 flex flex-col gap-4">
-                        <div className="aspect-[3/4] relative w-full bg-neutral-900 overflow-hidden">
+                        <div className="aspect-[3/4] relative w-full bg-bg-secondary overflow-hidden">
                             {product.images && product.images.length > 0 ? (
                                 <Image
                                     src={product.images[0]}
@@ -150,14 +132,14 @@ export default async function ProductPage({ params }) {
                                     priority
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-grey-500">No Image</div>
+                                <div className="w-full h-full flex items-center justify-center text-text-muted">No Image</div>
                             )}
                         </div>
                         {/* Secondary Images Grid if available */}
                         {product.images && product.images.length > 1 && (
                             <div className="grid grid-cols-2 gap-4">
                                 {product.images.slice(1, 3).map((img, idx) => (
-                                    <div key={idx} className="aspect-[3/4] relative bg-neutral-900">
+                                    <div key={idx} className="aspect-[3/4] relative bg-bg-secondary">
                                         <Image src={img} alt={`${product.name} ${idx + 2}`} fill className="object-cover" />
                                     </div>
                                 ))}
@@ -173,22 +155,22 @@ export default async function ProductPage({ params }) {
                             <ProductActions product={product} />
 
                             {/* Accordions */}
-                            <div className="mt-8 border-t border-grey-800">
+                            <div className="mt-8 border-t border-border-primary">
                                 <Accordion title="Description" defaultOpen={true}>
-                                    <p>{product.description}</p>
-                                    <ul className="mt-4 list-disc list-inside space-y-1 text-xs">
+                                    <p className="text-foreground/80">{product.description}</p>
+                                    <ul className="mt-4 list-disc list-inside space-y-1 text-xs text-text-muted">
                                         <li>Fabric: {product.fabric}</li>
                                         <li>Fit: {product.fit}</li>
                                         <li>Occasion: {product.occasion}</li>
                                     </ul>
                                 </Accordion>
                                 <Accordion title="Manufacturer Details">
-                                    <p>Made in India.</p>
-                                    <p>Marketed by KSHRA Inc.</p>
+                                    <p className="text-foreground/80">Made in India.</p>
+                                    <p className="text-foreground/80">Marketed by KSHRA Inc.</p>
                                 </Accordion>
                                 <Accordion title="Shipping, Return and Exchange">
-                                    <p>Free shipping on all prepaid orders.</p>
-                                    <p>7-day easy return and exchange policy.</p>
+                                    <p className="text-foreground/80">Free shipping on all prepaid orders.</p>
+                                    <p className="text-foreground/80">7-day easy return and exchange policy.</p>
                                 </Accordion>
                             </div>
 
@@ -198,7 +180,7 @@ export default async function ProductPage({ params }) {
 
                 {/* Recommended Section */}
                 <div className="mt-32">
-                    <h3 className="text-2xl font-bold uppercase tracking-widest text-white mb-10">Recommended</h3>
+                    <h3 className="text-2xl font-bold uppercase tracking-widest text-foreground mb-10">Recommended</h3>
                     <ProductGrid products={recommendedProducts} title="" />
                 </div>
             </div>

@@ -5,6 +5,7 @@ module.exports = {
         "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
         "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     ],
+    darkMode: 'class',
     theme: {
         extend: {
             colors: {
@@ -25,18 +26,18 @@ module.exports = {
                 },
                 // Semantic colors maps
                 bg: {
-                    primary: "#050505", // black
-                    secondary: "#030712", // grey-950
-                    tertiary: "#111827", // grey-900
+                    primary: "var(--background)",
+                    secondary: "var(--background-secondary)",
+                    tertiary: "var(--background-tertiary)",
                 },
                 text: {
-                    primary: "#ffffff", // white
-                    secondary: "#9ca3af", // grey-400
-                    muted: "#4b5563", // grey-600
+                    primary: "var(--foreground)",
+                    secondary: "var(--foreground-secondary)",
+                    muted: "var(--foreground-muted)",
                 },
                 border: {
-                    primary: "#1f2937", // grey-800
-                    secondary: "#374151", // grey-700
+                    primary: "var(--border-primary)",
+                    secondary: "var(--border-secondary)",
                 }
             },
             fontFamily: {

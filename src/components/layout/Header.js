@@ -25,7 +25,7 @@ export default function Header() {
 
     return (
         <>
-            <header className="fixed top-0 left-0 w-full h-[80px] z-[100] bg-black/80 backdrop-blur-xl border-b border-white/10 transition-transform duration-300">
+            <header className="fixed top-0 left-0 w-full h-[80px] z-[100] bg-background/80 backdrop-blur-xl border-b border-border-primary/10 transition-colors duration-300">
                 <div className="w-full h-full pl-0 pr-4 flex justify-between items-center">
 
                     {/* Left (Logo) */}
@@ -35,7 +35,8 @@ export default function Header() {
                                 src="/brand.png"
                                 alt="MAY BE NOT"
                                 fill
-                                className="object-contain object-left filter invert"
+                                className="object-contain object-left dark:invert"
+                                unoptimized
                                 priority
                             />
                         </Link>
@@ -45,7 +46,7 @@ export default function Header() {
                     <div className="flex items-center gap-5 md:gap-8">
                         <button
                             onClick={() => setIsSearchOpen(true)}
-                            className="text-white hover:text-grey-300 transition-colors"
+                            className="text-foreground hover:text-foreground-secondary transition-colors"
                             aria-label="Search"
                         >
                             <SearchIcon />
@@ -53,7 +54,7 @@ export default function Header() {
 
                         <Link
                             href={session ? (session.user.role === 'admin' ? "/admin/dashboard" : "/account") : "/login"}
-                            className="text-white hover:text-grey-300 transition-colors"
+                            className="text-foreground hover:text-foreground-secondary transition-colors"
                             aria-label="Account"
                         >
                             <UserIcon />
@@ -61,12 +62,12 @@ export default function Header() {
 
                         <button
                             onClick={toggleCart}
-                            className="relative text-white hover:text-grey-300 transition-colors"
+                            className="relative text-foreground hover:text-foreground-secondary transition-colors"
                             aria-label="Cart"
                         >
                             <ShoppingBagIcon />
                             {cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                                <span className="absolute -top-1 -right-1 bg-foreground text-background text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
                                     {cartCount}
                                 </span>
                             )}

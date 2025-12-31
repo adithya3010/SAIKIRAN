@@ -5,9 +5,10 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background-color: #050505;
-    color: #ffffff;
+    background-color: var(--background);
+    color: var(--foreground);
     padding: 2rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .backgroundGrid {
@@ -17,8 +18,8 @@
     width: 100%;
     height: 100%;
     background-image:
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        linear-gradient(rgba(var(--foreground-rgb), 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--foreground-rgb), 0.03) 1px, transparent 1px);
     background-size: 50px 50px;
     z-index: 1;
 }
@@ -37,8 +38,13 @@
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
+    filter: invert(0);
+    /* Default for Light Mode (assuming black logo) */
+}
+
+/* Dark mode override for CSS Modules: we need to rely on the global .dark class */
+:global(.dark) .brandWatermark {
     filter: invert(1);
-    /* Invert to make it white-ish if it's black, or adjust opacity if it's already white */
 }
 
 /* User's logo is black on transparent based on preview. Background is #050505 (black). 
@@ -69,13 +75,13 @@
 .badge {
     display: inline-block;
     padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(var(--foreground-rgb), 0.1);
+    border: 1px solid rgba(var(--foreground-rgb), 0.2);
     border-radius: 50px;
     font-size: 0.9rem;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: #ccc;
+    color: var(--foreground-secondary);
     width: fit-content;
     backdrop-filter: blur(10px);
 }
@@ -85,7 +91,7 @@
     line-height: 1.1;
     font-weight: 800;
     letter-spacing: -2px;
-    background: linear-gradient(to right, #fff, #888);
+    background: linear-gradient(to right, var(--foreground), var(--foreground-secondary));
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -93,16 +99,29 @@
 }
 
 .highlight {
-    color: #e5e5e5;
+    color: var(--foreground);
     /* Monochrome highlight */
-    -webkit-text-fill-color: #e5e5e5;
+    -webkit-text-fill-color: var(--foreground);
 }
 
 .subheadline {
     font-size: 1.25rem;
     line-height: 1.6;
-    color: #888;
+    color: var(--foreground-secondary);
     max-width: 500px;
+}
+
+/* ... */
+
+@media (max-width: 768px) {
+
+    /* ... */
+    .subheadline {
+        text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+        /* Lighter shadow for light mode */
+        color: var(--foreground-secondary);
+        /* Ensure visibility */
+    }
 }
 
 .ctaGroup {
@@ -113,8 +132,8 @@
 
 .primaryButton {
     padding: 1rem 2.5rem;
-    background: #fff;
-    color: #000;
+    background: var(--foreground);
+    color: var(--background);
     font-weight: 700;
     font-size: 1rem;
     border: none;
@@ -128,16 +147,16 @@
 
 .primaryButton:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 20px rgba(var(--foreground-rgb), 0.1);
 }
 
 .secondaryButton {
     padding: 1rem 2.5rem;
     background: transparent;
-    color: #fff;
+    color: var(--foreground);
     font-weight: 700;
     font-size: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(var(--foreground-rgb), 0.3);
     cursor: pointer;
     transition: all 0.2s;
     text-transform: uppercase;
@@ -145,8 +164,8 @@
 }
 
 .secondaryButton:hover {
-    border-color: #fff;
-    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--foreground);
+    background: rgba(var(--foreground-rgb), 0.05);
 }
 
 .imageWrapper {
@@ -167,7 +186,7 @@
     border-radius: 20px;
     /* filter: grayscale(20%) contrast(110%); */
     transition: transform 0.1s ease-out;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    box-shadow: none;
     /* Neon glow effect behind image */
 }
 
@@ -233,9 +252,9 @@
     }
 
     .subheadline {
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
-        color: #e5e5e5;
-        /* Lighter text for readability on dark */
+        text-shadow: none;
+        color: var(--foreground-secondary);
+        /* Ensure readability on mobile */
     }
 
     .ctaGroup {

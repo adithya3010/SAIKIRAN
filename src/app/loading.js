@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export default function Loading() {
     return (
-        <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-background z-[200] flex items-center justify-center transition-colors duration-300">
             {/* Inline styles for the custom fill animation */}
             <style jsx>{`
                 @keyframes fillUp {
@@ -29,7 +29,7 @@ export default function Loading() {
                         src="/brand-loading.png"
                         alt="Loading..."
                         fill
-                        className="object-contain filter invert"
+                        className="object-contain dark:invert"
                     />
                 </div>
 
@@ -39,7 +39,7 @@ export default function Loading() {
                         src="/brand-loading.png"
                         alt="Loading..."
                         fill
-                        className="object-contain filter invert drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                        className="object-contain dark:invert drop-shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
                     />
                 </div>
             </div>
