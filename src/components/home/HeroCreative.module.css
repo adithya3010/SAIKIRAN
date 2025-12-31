@@ -1,0 +1,269 @@
+.heroSection {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: #050505;
+    color: #ffffff;
+    padding: 2rem;
+}
+
+.backgroundGrid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: 1;
+}
+
+.brandWatermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 0;
+    opacity: 0.05;
+    pointer-events: none;
+    background-image: url('/brand.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    filter: invert(1);
+    /* Invert to make it white-ish if it's black, or adjust opacity if it's already white */
+}
+
+/* User's logo is black on transparent based on preview. Background is #050505 (black). 
+   So we need to invert it to make it white/grey or it won't show up. 
+   Filter invert(1) will make black -> white. */
+
+.contentWrapper {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    max-width: 1400px;
+    width: 100%;
+    gap: 4rem;
+}
+
+.textContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    transform: translateY(-80px);
+    /* Move content up on desktop */
+}
+
+
+
+.badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #ccc;
+    width: fit-content;
+    backdrop-filter: blur(10px);
+}
+
+.headline {
+    font-size: 4.5rem;
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -2px;
+    background: linear-gradient(to right, #fff, #888);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.highlight {
+    color: #e5e5e5;
+    /* Monochrome highlight */
+    -webkit-text-fill-color: #e5e5e5;
+}
+
+.subheadline {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: #888;
+    max-width: 500px;
+}
+
+.ctaGroup {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.primaryButton {
+    padding: 1rem 2.5rem;
+    background: #fff;
+    color: #000;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    border-radius: 0;
+    /* Sharp edges for streetwear look */
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.primaryButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+}
+
+.secondaryButton {
+    padding: 1rem 2.5rem;
+    background: transparent;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.secondaryButton:hover {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.imageWrapper {
+    position: relative;
+    height: 700px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+    transform: translateY(-120px);
+}
+
+.heroImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+    /* filter: grayscale(20%) contrast(110%); */
+    transition: transform 0.1s ease-out;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    /* Neon glow effect behind image */
+}
+
+.glow {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: #ffffff;
+    filter: blur(180px);
+    opacity: 0.15;
+    border-radius: 50%;
+    z-index: -1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@media (max-width: 1024px) {
+    .headline {
+        font-size: 3.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .heroSection {
+        padding: 1rem;
+        min-height: auto;
+        padding-top: 2rem;
+        /* Reduced from 4rem */
+        padding-bottom: 4rem;
+    }
+
+    .contentWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        /* Remove gap to allow overlap control */
+        text-align: center;
+    }
+
+    .textContent {
+        align-items: center;
+        order: 2;
+        /* Content below image but overlapping */
+        margin-top: -160px;
+        /* Pull text up even more */
+        position: relative;
+        z-index: 10;
+        /* Text on top */
+        transform: none !important;
+    }
+
+    /* Actually, for impressive visuals, image first often works well if it's striking */
+    /* But let's stick to standard flow: Text -> Image for now, or Image -> Text. 
+     Let's try Text Top for clarity */
+
+    .headline {
+        font-size: 3.5rem;
+        /* Bigger */
+        line-height: 0.9;
+        text-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+        /* Stronger shadow */
+    }
+
+    .subheadline {
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+        color: #e5e5e5;
+        /* Lighter text for readability on dark */
+    }
+
+    .ctaGroup {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+        margin-top: 2rem;
+    }
+
+    .primaryButton,
+    .secondaryButton {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .imageWrapper {
+        height: 550px;
+        /* Taller image */
+        width: 100%;
+        order: 1;
+        /* Image on top */
+        transform: none !important;
+        margin-top: -60px;
+        /* Pull image up */
+        margin-bottom: 0;
+        z-index: 1;
+        mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        /* Start fade earlier */
+        -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+    }
+}

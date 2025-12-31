@@ -1,4 +1,4 @@
-import Hero from '@/components/home/Hero';
+import HeroCreative from '@/components/home/HeroCreative';
 import FeaturedCollections from '@/components/home/FeaturedCollections';
 import ProductGrid from '@/components/product/ProductGrid';
 import Footer from '@/components/layout/Footer';
@@ -57,7 +57,7 @@ export default async function Home() {
 
   return (
     <>
-      <Hero />
+      <HeroCreative />
       <FeaturedCollections />
       <ProductGrid title="New Arrivals" products={newArrivals} />
       <Footer />
