@@ -7,25 +7,45 @@ import Product from '@/models/Product';
 import { unstable_noStore as noStore } from 'next/cache';
 
 async function getNewArrivals() {
-  noStore(); // OPTIONAL: Prevent caching for admin updates visibility
+  noStore();
   try {
     await dbConnect();
-    // Fetch latest 4 products, assuming 'createdAt' sort or 'isNewProduct' flag
-    // Adjust query as needed. Using createdAt desc for "New Arrivals"
     const products = await Product.find({}).sort({ createdAt: -1 }).limit(4).lean();
 
-    // Convert _id and dates to serializable format if needed (lean() helps but nextjs might complain about ObjectIds)
-    return products.map(product => ({
-      ...product,
-      _id: product._id.toString(),
-      id: product._id.toString(), // Ensure 'id' prop exists for compatibility
-      createdAt: product.createdAt?.toISOString(),
-      updatedAt: product.updatedAt?.toISOString(),
-      colors: product.colors?.map(c => ({
-        ...c,
-        _id: c._id ? c._id.toString() : undefined
-      })) || []
-    }));
+    // Manually serialize the result
+    return products.map(product => {
+      // Create a shallow copy first
+      const serialized = { ...product };
+
+      // Convert _id to string
+      if (serialized._id) {
+        serialized._id = serialized._id.toString();
+        serialized.id = serialized._id; // Ensure compatibility
+      }
+
+      // Convert Date fields
+      if (serialized.createdAt) serialized.createdAt = serialized.createdAt.toISOString();
+      if (serialized.updatedAt) serialized.updatedAt = serialized.updatedAt.toISOString();
+
+      // Serialize nested ObjectIds in colors array
+      if (serialized.colors) {
+        serialized.colors = serialized.colors.map(c => ({
+          ...c,
+          _id: c._id ? c._id.toString() : undefined
+        }));
+      }
+
+      // Serialize nested ObjectIds in variants array (Mongoose might add _id to subdocs)
+      if (serialized.variants) {
+        serialized.variants = serialized.variants.map(v => ({
+          ...v,
+          _id: v._id ? v._id.toString() : undefined,
+          color: v.color ? { ...v.color, _id: v.color._id ? v.color._id.toString() : undefined } : v.color
+        }));
+      }
+
+      return serialized;
+    });
   } catch (error) {
     console.error("Failed to fetch new arrivals:", error);
     return [];

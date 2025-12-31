@@ -26,26 +26,33 @@ export function CartProvider({ children }) {
 
     const addToCart = (product) => {
         setCartItems(prev => {
-            const existing = prev.find(item => item.id === product.id);
+            // Create a unique ID for this specific variant combination
+            const uniqueId = `${product.id}-${product.selectedSize}-${product.selectedColor?.name || 'default'}`;
+
+            // Check if this specific variant is already in cart
+            const existing = prev.find(item => item.cartId === uniqueId);
+
             if (existing) {
                 return prev.map(item =>
-                    item.id === product.id
-                        ? { ...item, quantity: item.quantity + 1 }
+                    item.cartId === uniqueId
+                        ? { ...item, quantity: item.quantity + product.quantity } // Add new quantity to existing
                         : item
                 );
             }
-            return [...prev, { ...product, quantity: 1 }];
+
+            // Add new item with the unique cartId
+            return [...prev, { ...product, cartId: uniqueId }];
         });
         setIsCartOpen(true);
     };
 
-    const removeFromCart = (id) => {
-        setCartItems(prev => prev.filter(item => item.id !== id));
+    const removeFromCart = (cartId) => {
+        setCartItems(prev => prev.filter(item => item.cartId !== cartId));
     };
 
-    const updateQuantity = (id, delta) => {
+    const updateQuantity = (cartId, delta) => {
         setCartItems(prev => prev.map(item => {
-            if (item.id === id) {
+            if (item.cartId === cartId) {
                 const newQuantity = Math.max(1, item.quantity + delta);
                 return { ...item, quantity: newQuantity };
             }

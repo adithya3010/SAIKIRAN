@@ -40,21 +40,21 @@ export default function CartItem({ item }) {
                 <div className="flex items-center gap-4">
                     <div className="flex items-center border border-border-secondary">
                         <button
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() => updateQuantity(item.cartId, -1)}
                             className="w-8 h-8 flex items-center justify-center text-grey-400 hover:text-white transition-colors"
                         >
                             -
                         </button>
                         <span className="w-8 text-center text-sm text-white">{item.quantity}</span>
                         <button
-                            onClick={() => updateQuantity(item.id, 1)}
+                            onClick={() => updateQuantity(item.cartId, 1)}
                             className="w-8 h-8 flex items-center justify-center text-grey-400 hover:text-white transition-colors"
                         >
                             +
                         </button>
                     </div>
                     <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item.cartId)}
                         className="text-xs uppercase tracking-wider text-grey-500 hover:text-red-500 transition-colors underline"
                     >
                         Remove

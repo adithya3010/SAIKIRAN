@@ -26,16 +26,38 @@ async function getProduct(id) {
         await dbConnect();
         const product = await Product.findById(id).lean();
         if (!product) return null;
-        return {
-            ...product,
-            _id: product._id.toString(),
-            id: product._id.toString(),
-            createdAt: product.createdAt?.toISOString(),
-            colors: product.colors?.map(c => ({
+
+        // Serialize helper
+        const serialize = (obj) => {
+            const serialized = { ...obj };
+            if (serialized._id) {
+                serialized._id = serialized._id.toString();
+                serialized.id = serialized._id;
+            }
+            if (serialized.createdAt) serialized.createdAt = serialized.createdAt.toISOString();
+            if (serialized.updatedAt) serialized.updatedAt = serialized.updatedAt.toISOString();
+            return serialized;
+        };
+
+        const serializedProduct = serialize(product);
+
+        // Nested serialization
+        if (serializedProduct.colors) {
+            serializedProduct.colors = serializedProduct.colors.map(c => ({
                 ...c,
                 _id: c._id ? c._id.toString() : undefined
-            })) || []
-        };
+            }));
+        }
+
+        if (serializedProduct.variants) {
+            serializedProduct.variants = serializedProduct.variants.map(v => ({
+                ...v,
+                _id: v._id ? v._id.toString() : undefined,
+                color: v.color ? { ...v.color, _id: v.color._id ? v.color._id.toString() : undefined } : v.color
+            }));
+        }
+
+        return serializedProduct;
     } catch (error) {
         return null;
     }
@@ -50,16 +72,32 @@ async function getRecommendedProducts(category, currentId) {
             _id: { $ne: currentId }
         }).limit(4).lean();
 
-        return products.map(p => ({
-            ...p,
-            _id: p._id.toString(),
-            id: p._id.toString(),
-            createdAt: p.createdAt?.toISOString(),
-            colors: p.colors?.map(c => ({
-                ...c,
-                _id: c._id ? c._id.toString() : undefined
-            })) || []
-        }));
+        // Serialize helper (Inline for now or move to utils if needed repeatedly)
+        const serialize = (obj) => {
+            const serialized = { ...obj };
+            if (serialized._id) {
+                serialized._id = serialized._id.toString();
+                serialized.id = serialized._id;
+            }
+            if (serialized.createdAt) serialized.createdAt = serialized.createdAt.toISOString();
+            return serialized;
+        };
+
+        return products.map(p => {
+            const s = serialize(p);
+            if (s.colors) {
+                s.colors = s.colors.map(c => ({ ...c, _id: c._id ? c._id.toString() : undefined }));
+            }
+            if (s.variants) {
+                s.variants = s.variants.map(v => ({
+                    ...v,
+                    _id: v._id ? v._id.toString() : undefined,
+                    color: v.color ? { ...v.color, _id: v.color._id ? v.color._id.toString() : undefined } : v.color
+                }));
+            }
+            return s;
+        });
+
     } catch (error) {
         return [];
     }
