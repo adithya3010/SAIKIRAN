@@ -3,9 +3,9 @@ export default function Button({ children, variant = 'solid', size = 'md', class
     const baseStyles = 'inline-flex items-center justify-center border border-transparent font-outfit font-medium transition-all duration-300 tracking-[0.05em] uppercase cursor-pointer active:scale-95';
 
     const variants = {
-        solid: 'bg-white text-black border-white hover:bg-grey-200 hover:border-grey-200',
-        outline: 'bg-transparent text-white border-grey-700 hover:border-white hover:bg-white/5',
-        ghost: 'bg-transparent text-white hover:text-grey-300'
+        solid: 'bg-foreground text-background border-foreground hover:opacity-90',
+        outline: 'bg-transparent text-foreground border-border-secondary hover:border-foreground hover:bg-foreground/5',
+        ghost: 'bg-transparent text-foreground hover:text-text-muted'
     };
 
     const sizes = {

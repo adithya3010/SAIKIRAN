@@ -137,10 +137,10 @@ function SearchContent() {
 
 
     return (
-        <div className="min-h-screen bg-black text-white">
+        <div className="min-h-screen bg-background text-foreground">
 
             {/* Page Header (Search Bar & Breadcrumbs) */}
-            <div className="border-b border-white/10 bg-neutral-900/50">
+            <div className="border-b border-border-primary/10 bg-bg-secondary/50">
                 <div className="container-custom py-8 md:py-10">
 
                     {/* Search Input Form */}
@@ -151,22 +151,22 @@ function SearchContent() {
                                 value={localQuery}
                                 onChange={(e) => setLocalQuery(e.target.value)}
                                 placeholder="Search products, categories, styles..."
-                                className="w-full bg-transparent border-b-2 border-grey-700 text-3xl md:text-5xl font-outfit font-bold text-white placeholder-grey-700 focus:outline-none focus:border-white pb-2 transition-colors uppercase tracking-tight"
+                                className="w-full bg-transparent border-b-2 border-border-secondary text-3xl md:text-5xl font-outfit font-bold text-foreground placeholder-text-muted focus:outline-none focus:border-foreground pb-2 transition-colors uppercase tracking-tight"
                             />
                             <button
                                 type="submit"
-                                className="absolute right-0 bottom-4 text-grey-500 hover:text-white transition-colors"
+                                className="absolute right-0 bottom-4 text-text-muted hover:text-foreground transition-colors"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             </button>
                         </div>
                     </form>
 
-                    <div className="flex items-center gap-4 text-grey-400 text-sm">
+                    <div className="flex items-center gap-4 text-text-muted text-sm">
                         <span>{filteredProducts.length} Results Found</span>
                         {query && (
                             <>
-                                <span className="w-1 h-1 bg-grey-600 rounded-full"></span>
+                                <span className="w-1 h-1 bg-text-muted rounded-full"></span>
                                 <span>For "{query}"</span>
                             </>
                         )}
@@ -192,32 +192,32 @@ function SearchContent() {
                     <div className="flex-1">
 
                         {/* Mobile Filter Trigger & Sort */}
-                        <div className="flex justify-between items-center mb-6 lg:mb-8 sticky top-[80px] z-30 bg-black py-4 lg:static lg:bg-transparent lg:py-0">
+                        <div className="flex justify-between items-center mb-6 lg:mb-8 sticky top-[80px] z-30 bg-background py-4 lg:static lg:bg-transparent lg:py-0 transition-colors">
                             <button
                                 onClick={() => setIsMobileFiltersOpen(true)}
-                                className="lg:hidden flex items-center gap-2 text-sm font-bold uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-white hover:text-black transition-colors"
+                                className="lg:hidden flex items-center gap-2 text-sm font-bold uppercase tracking-widest border border-border-primary px-4 py-2 rounded-full hover:bg-foreground hover:text-background transition-colors"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
                                 Filter
                             </button>
 
                             <div className="flex items-center gap-3 ml-auto">
-                                <span className="text-grey-500 text-xs uppercase tracking-widest hidden md:inline">Sort by:</span>
+                                <span className="text-text-muted text-xs uppercase tracking-widest hidden md:inline">Sort by:</span>
                                 <select
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
-                                    className="bg-transparent text-white border-none md:border text-sm font-bold uppercase focus:outline-none cursor-pointer"
+                                    className="bg-transparent text-foreground border-none md:border md:border-border-primary text-sm font-bold uppercase focus:outline-none cursor-pointer p-1"
                                 >
-                                    <option value="newest" className="bg-black">Newest</option>
-                                    <option value="price-low-high" className="bg-black">Price: Low to High</option>
-                                    <option value="price-high-low" className="bg-black">Price: High to Low</option>
+                                    <option value="newest" className="bg-background text-foreground">Newest</option>
+                                    <option value="price-low-high" className="bg-background text-foreground">Price: Low to High</option>
+                                    <option value="price-high-low" className="bg-background text-foreground">Price: High to Low</option>
                                 </select>
                             </div>
                         </div>
 
                         {/* Product Grid */}
                         {isLoading ? (
-                            <div className="min-h-[40vh] flex items-center justify-center text-grey-500">
+                            <div className="min-h-[40vh] flex items-center justify-center text-text-muted">
                                 Loading...
                             </div>
                         ) : filteredProducts.length > 0 ? (
@@ -227,11 +227,11 @@ function SearchContent() {
                                 ))}
                             </div>
                         ) : (
-                            <div className="min-h-[40vh] flex flex-col items-center justify-center text-center border border-white/10 rounded-lg p-12">
-                                <p className="text-xl md:text-2xl text-grey-500 mb-6 font-light">No products match your criteria.</p>
+                            <div className="min-h-[40vh] flex flex-col items-center justify-center text-center border border-border-primary rounded-lg p-12">
+                                <p className="text-xl md:text-2xl text-text-muted mb-6 font-light">No products match your criteria.</p>
                                 <button
                                     onClick={clearSideFilters}
-                                    className="text-white border-b border-white hover:text-grey-300 hover:border-grey-300 transition-colors uppercase tracking-widest text-sm pb-1"
+                                    className="text-foreground border-b border-foreground hover:text-text-muted hover:border-text-muted transition-colors uppercase tracking-widest text-sm pb-1"
                                 >
                                     Clear all filters
                                 </button>

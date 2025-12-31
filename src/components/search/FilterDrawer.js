@@ -25,12 +25,12 @@ export default function FilterDrawer({ isOpen, onClose, ...props }) {
             />
 
             {/* Drawer */}
-            <div className="absolute bottom-0 left-0 w-full h-[85vh] bg-neutral-900 rounded-t-3xl shadow-2xl transform transition-transform duration-300 animate-slideUp flex flex-col">
+            <div className="absolute bottom-0 left-0 w-full h-[85vh] bg-background rounded-t-3xl shadow-2xl transform transition-transform duration-300 animate-slideUp flex flex-col">
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-white/10">
-                    <h2 className="text-xl font-outfit font-bold uppercase text-white">Filters</h2>
-                    <button onClick={onClose} className="p-2 text-white hover:text-grey-300">
+                <div className="flex items-center justify-between p-6 border-b border-border-primary/10">
+                    <h2 className="text-xl font-outfit font-bold uppercase text-foreground">Filters</h2>
+                    <button onClick={onClose} className="p-2 text-foreground hover:text-text-muted">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
@@ -41,10 +41,10 @@ export default function FilterDrawer({ isOpen, onClose, ...props }) {
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-6 border-t border-white/10 bg-neutral-900">
+                <div className="p-6 border-t border-border-secondary bg-background">
                     <button
                         onClick={onClose}
-                        className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest text-sm hover:bg-grey-200 transition-colors"
+                        className="w-full py-4 bg-foreground text-background font-bold uppercase tracking-widest text-sm hover:opacity-90 transition-opacity"
                     >
                         Apply Filters
                     </button>

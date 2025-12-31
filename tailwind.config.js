@@ -25,6 +25,9 @@ module.exports = {
                     950: "#030712",
                 },
                 // Semantic colors maps
+                background: "var(--background)",
+                foreground: "var(--foreground)",
+
                 bg: {
                     primary: "var(--background)",
                     secondary: "var(--background-secondary)",

@@ -34,7 +34,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center p-24 bg-black text-white">
+        <div className="flex min-h-screen flex-col items-center justify-center p-24 bg-background text-foreground transition-colors duration-300">
             <div className="w-full max-w-md space-y-8">
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-bold tracking-tight">
@@ -52,7 +52,7 @@ export default function LoginPage() {
                                 name="email"
                                 type="email"
                                 required
-                                className="relative block w-full rounded-t-md border-0 bg-white/10 py-1.5 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3"
+                                className="relative block w-full rounded-t-md border-0 bg-bg-secondary py-1.5 text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3 transition-colors"
                                 placeholder="Email address"
                                 value={data.email}
                                 onChange={(e) => setData({ ...data, email: e.target.value })}
@@ -67,7 +67,7 @@ export default function LoginPage() {
                                 name="password"
                                 type="password"
                                 required
-                                className="relative block w-full rounded-b-md border-0 bg-white/10 py-1.5 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3 mt-2"
+                                className="relative block w-full rounded-b-md border-0 bg-bg-secondary py-1.5 text-foreground placeholder:text-text-muted focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3 mt-2 transition-colors"
                                 placeholder="Password"
                                 value={data.password}
                                 onChange={(e) => setData({ ...data, password: e.target.value })}
@@ -77,7 +77,7 @@ export default function LoginPage() {
 
                     <div className="flex items-center justify-between">
                         <div className="text-sm">
-                            <Link href="/register" className="font-medium text-gray-400 hover:text-white">
+                            <Link href="/register" className="font-medium text-text-muted hover:text-foreground transition-colors">
                                 Don't have an account? Sign up
                             </Link>
                         </div>
@@ -88,7 +88,7 @@ export default function LoginPage() {
                     <div>
                         <Button
                             type="submit"
-                            className="group relative flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-black hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                            className="group relative flex w-full justify-center rounded-md bg-foreground px-3 py-2 text-sm font-semibold text-background hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-opacity"
                             disabled={loading}
                         >
                             {loading ? "Signing in..." : "Sign in"}

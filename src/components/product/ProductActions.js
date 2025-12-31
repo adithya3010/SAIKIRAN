@@ -249,19 +249,19 @@ export default function ProductActions({ product }) {
             <div className="grid grid-cols-2 gap-4 pb-4">
                 <Button
                     variant="outline"
-                    size="xl"
+                    size="lg"
                     onClick={handleAddToCart}
                     disabled={isOutOfStock}
-                    className={`border-border-secondary hover:border-foreground uppercase tracking-widest font-bold text-xs ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''} text-foreground`}
+                    className={`border-foreground hover:bg-foreground hover:text-white dark:hover:text-black uppercase tracking-widest font-bold text-sm ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''} text-foreground transition-colors`}
                 >
                     {isOutOfStock ? 'Sold Out' : 'Add to Cart'}
                 </Button>
                 <Button
                     variant="solid"
-                    size="xl"
+                    size="lg"
                     onClick={handleBuyNow}
                     disabled={isOutOfStock}
-                    className={`uppercase tracking-widest font-bold text-xs ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''} ${error ? 'animate-shake' : ''} bg-foreground text-background hover:bg-foreground/90`}
+                    className={`uppercase tracking-widest font-bold text-sm ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''} ${error ? 'animate-shake' : ''} bg-foreground text-background hover:opacity-90`}
                 >
                     Buy It Now
                 </Button>

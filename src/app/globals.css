@@ -14,15 +14,15 @@
   /* grey-200 */
 
   --foreground: #050505;
-  --foreground-secondary: #4b5563;
-  /* grey-600 */
-  --foreground-muted: #6b7280;
-  /* grey-500 - Darkened for better readability on white */
+  --foreground-secondary: #374151;
+  /* grey-700 - Darkened for better readability */
+  --foreground-muted: #4b5563;
+  /* grey-600 - Darkened significantly from 500 */
 
   --border-primary: #e5e7eb;
   /* grey-200 */
-  --border-secondary: #d1d5db;
-  /* grey-300 */
+  --border-secondary: #9ca3af;
+  /* grey-400 - Darkened from 300 for clearer borders */
 }
 
 .dark {

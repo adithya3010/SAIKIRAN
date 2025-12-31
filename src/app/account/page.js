@@ -73,7 +73,7 @@ export default function AccountPage() {
                         <div>
                             <h3 className="text-lg font-medium mb-4">Account Actions</h3>
                             <Button
-                                variant="outline"
+                                variant="solid"
                                 onClick={() => signOut({ callbackUrl: '/' })}
                                 className="w-full sm:w-auto"
                             >

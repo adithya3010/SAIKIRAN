@@ -90,7 +90,7 @@ export default async function CategoryPage({ params }) {
         <div className="pt-24 min-h-screen">
             <ProductGrid title={`${title}'s Collection`} products={products} />
             {products.length === 0 && (
-                <div className="text-center text-grey-500 mt-10">
+                <div className="text-center text-text-muted mt-10">
                     <p>No products found in this category.</p>
                 </div>
             )}
