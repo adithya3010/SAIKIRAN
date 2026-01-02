@@ -20,9 +20,9 @@ export default function AddProductPage() {
         fabric: '',
         printType: 'Solid',
         occasion: 'Everyday',
-        images: [''], // Array of URL strings
-        // Extended Color Schema to include stock
-        colors: [{ name: 'Black', hex: '#000000', stock: 10 }],
+        images: [], // Deprecated but kept for schema compatibility, populated on submit
+        // Extended Color Schema to include stock and images
+        colors: [{ name: 'Black', hex: '#000000', stock: 10, images: [] }],
         sizes: [],
         variants: [], // { color, size, stock }
         inStock: true
@@ -168,13 +168,68 @@ export default function AddProductPage() {
     };
 
     const addColor = () => {
-        setFormData(prev => ({ ...prev, colors: [...prev.colors, { name: '', hex: '#000000', stock: 10 }] }));
+        setFormData(prev => ({ ...prev, colors: [...prev.colors, { name: '', hex: '#000000', stock: 10, images: [] }] }));
     };
 
     const removeColor = (index) => {
-        const newColors = [...formData.colors];
-        newColors.splice(index, 1);
-        setFormData(prev => ({ ...prev, colors: newColors }));
+        setFormData(prev => {
+            const newColors = [...prev.colors];
+            newColors.splice(index, 1);
+            return { ...prev, colors: newColors };
+        });
+    };
+
+    // Color Image Handlers
+    const handleColorImageUpload = async (colorIndex, e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        setUploading(true);
+        try {
+            const uploadPromises = files.map(async (file) => {
+                const compressedFile = await compressImage(file);
+                const data = new FormData();
+                data.append('file', compressedFile);
+                const res = await fetch('/api/upload', { method: 'POST', body: data });
+                return await res.json();
+            });
+
+            const results = await Promise.all(uploadPromises);
+            const successfulUrls = results.filter(r => r.success).map(r => r.url);
+
+            // Prevent duplicates and clearing input
+            setFormData(prev => {
+                const newColors = [...prev.colors];
+                const existingImages = newColors[colorIndex].images || [];
+                // Only add images that don't already exist to prevent duplication if any weird double-fire happens
+                const uniqueNewImages = successfulUrls.filter(url => !existingImages.includes(url));
+
+                if (uniqueNewImages.length > 0) {
+                    newColors[colorIndex].images = [...existingImages, ...uniqueNewImages];
+                }
+
+                return { ...prev, colors: newColors };
+            });
+
+            // Reset input value to allow re-uploading same file if needed (and clean up)
+            e.target.value = '';
+
+        } catch (error) {
+            console.error('Upload failed', error);
+            alert('Upload failed');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const removeColorImage = (colorIndex, imgIndex) => {
+        setFormData(prev => {
+            const newColors = [...prev.colors];
+            const newImages = [...(newColors[colorIndex].images || [])];
+            newImages.splice(imgIndex, 1);
+            newColors[colorIndex].images = newImages;
+            return { ...prev, colors: newColors };
+        });
     };
 
     // Size Handlers
@@ -202,10 +257,13 @@ export default function AddProductPage() {
 
         try {
             // Clean up data before sending
+            // Aggregate all images for backward compatibility / API schema
+            const allImages = formData.colors.flatMap(c => c.images || []);
+
             const payload = {
                 ...formData,
                 price: parseFloat(formData.price),
-                images: formData.images.filter(img => img.trim() !== ''),
+                images: allImages, // Populate top-level images
                 colors: formData.colors.filter(c => c.name.trim() !== '')
             };
 
@@ -365,82 +423,16 @@ export default function AddProductPage() {
                     </div>
                 </div>
 
-                {/* Images */}
-                <div className="space-y-6">
-                    <h2 className="text-xl font-bold border-b border-border-primary pb-4 text-foreground">Images</h2>
-                    <p className="text-xs text-text-muted">Upload product images (Accepted: JPG, PNG, WEBP).</p>
+                {/* Step 2: Colors & Images */}
+                <div className="space-y-6 pt-4">
+                    <label className="text-xs uppercase tracking-widest text-text-muted">2. Define Colors & Images</label>
+                    <p className="text-xs text-text-muted">For each color, upload specific images. The first image of the first color will be the main product image.</p>
 
-                    {formData.images.map((url, index) => (
-                        <div key={index} className="flex gap-4 items-center">
-                            <div className="flex-1">
-                                {!url ? (
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => handleFileUpload(index, e)}
-                                        className="w-full bg-bg-secondary border border-border-primary p-3 rounded text-foreground focus:border-foreground outline-none text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-foreground file:text-background hover:file:opacity-90 transition-colors"
-                                    />
-                                ) : (
-                                    <div className="flex items-center gap-4 bg-bg-secondary p-2 rounded border border-border-primary">
-                                        <div className="relative w-16 h-16 bg-bg-tertiary rounded overflow-hidden">
-                                            <Image src={url} alt="Preview" fill className="object-cover" />
-                                        </div>
-                                        <span className="text-xs text-text-muted truncate flex-1">{url}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleArrayChange(index, '', 'images')}
-                                            className="text-foreground hover:text-red-400 text-xs uppercase underline p-2"
-                                        >
-                                            Change
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                    {formData.colors.map((color, index) => (
+                        <div key={index} className="bg-bg-secondary p-6 rounded border border-border-primary space-y-6">
 
-                            {formData.images.length > 1 && (
-                                <button type="button" onClick={() => removeArrayItem(index, 'images')} className="text-red-500 hover:text-red-400 px-3">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
-                            )}
-                        </div>
-                    ))}
-
-                    {uploading && <p className="text-xs text-yellow-500 animate-pulse">Uploading...</p>}
-
-                    <button type="button" onClick={() => addArrayItem('images')} className="text-xs font-bold uppercase tracking-widest text-foreground border-b border-foreground hover:text-text-muted hover:border-text-muted transition-colors">
-                        + Add Another Image
-                    </button>
-                </div>
-
-                {/* Variants Configuration */}
-                <div className="space-y-6">
-                    <h2 className="text-xl font-bold border-b border-border-primary pb-4 text-foreground">Variants Configuration</h2>
-
-                    {/* Step 1: Sizes */}
-                    <div className="space-y-4">
-                        <label className="text-xs uppercase tracking-widest text-text-muted">1. Select Available Sizes</label>
-                        <div className="flex flex-wrap gap-3">
-                            {filters.sizes.map(size => (
-                                <button
-                                    key={size}
-                                    type="button"
-                                    onClick={() => toggleSize(size)}
-                                    className={`w-12 h-12 rounded border flex items-center justify-center text-sm font-bold transition-all ${formData.sizes.includes(size)
-                                        ? 'bg-foreground text-background border-foreground'
-                                        : 'bg-transparent text-text-muted border-border-primary hover:border-foreground'
-                                        }`}
-                                >
-                                    {size}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Step 2: Colors */}
-                    <div className="space-y-4 pt-4">
-                        <label className="text-xs uppercase tracking-widest text-text-muted">2. Define Colors</label>
-                        {formData.colors.map((color, index) => (
-                            <div key={index} className="flex gap-4 items-end bg-bg-secondary p-4 rounded border border-border-primary">
+                            {/* Color Details */}
+                            <div className="flex gap-4 items-end border-b border-border-primary pb-6">
                                 <div className="space-y-2 flex-1">
                                     <label className="text-[10px] uppercase text-text-muted">Name</label>
                                     <input
@@ -469,10 +461,74 @@ export default function AddProductPage() {
                                     </button>
                                 )}
                             </div>
-                        ))}
-                        <button type="button" onClick={addColor} className="text-xs font-bold uppercase tracking-widest text-foreground border-b border-foreground hover:text-text-muted hover:border-text-muted transition-colors">
-                            + Add Another Color
-                        </button>
+
+                            {/* Color Images */}
+                            <div className="space-y-3">
+                                <h4 className="text-xs uppercase font-bold text-text-muted">Images for {color.name || 'this color'}</h4>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {color.images?.map((url, imgIndex) => (
+                                        <div key={imgIndex} className="relative aspect-[3/4] bg-bg-tertiary rounded overflow-hidden group">
+                                            <Image src={url} alt="Preview" fill className="object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeColorImage(index, imgIndex)}
+                                                className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    {/* Upload Button */}
+                                    <label className="aspect-[3/4] border-2 border-dashed border-border-primary rounded flex flex-col items-center justify-center cursor-pointer hover:border-foreground hover:bg-bg-tertiary transition-all">
+                                        {uploading ? (
+                                            <span className="text-xs text-yellow-500 animate-pulse">Uploading...</span>
+                                        ) : (
+                                            <>
+                                                <svg className="w-8 h-8 text-text-muted mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                                                <span className="text-xs text-text-muted text-center px-2">Add Image</span>
+                                            </>
+                                        )}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={(e) => handleColorImageUpload(index, e)}
+                                            className="hidden"
+                                            disabled={uploading}
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    <button type="button" onClick={addColor} className="text-xs font-bold uppercase tracking-widest text-foreground border-b border-foreground hover:text-text-muted hover:border-text-muted transition-colors">
+                        + Add Another Color
+                    </button>
+                </div>
+
+                {/* Variants Configuration */}
+                <div className="space-y-6">
+                    <h2 className="text-xl font-bold border-b border-border-primary pb-4 text-foreground">Variants Configuration</h2>
+
+                    {/* Step 1: Sizes */}
+                    <div className="space-y-4">
+                        <label className="text-xs uppercase tracking-widest text-text-muted">1. Select Available Sizes</label>
+                        <div className="flex flex-wrap gap-3">
+                            {filters.sizes.map(size => (
+                                <button
+                                    key={size}
+                                    type="button"
+                                    onClick={() => toggleSize(size)}
+                                    className={`w-12 h-12 rounded border flex items-center justify-center text-sm font-bold transition-all ${formData.sizes.includes(size)
+                                        ? 'bg-foreground text-background border-foreground'
+                                        : 'bg-transparent text-text-muted border-border-primary hover:border-foreground'
+                                        }`}
+                                >
+                                    {size}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Step 3: Stock Matrix */}

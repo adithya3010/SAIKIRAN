@@ -46,7 +46,8 @@ const ProductSchema = new mongoose.Schema({
     colors: [{
         name: String,
         hex: String,
-        stock: { type: Number, default: 0 } // Keep for backward compatibility or aggregate view
+        stock: { type: Number, default: 0 },
+        images: [String] // Color-specific images
     }],
     variants: [{
         color: {

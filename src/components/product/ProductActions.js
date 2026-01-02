@@ -3,14 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import Button from '../ui/Button';
 
-export default function ProductActions({ product }) {
+export default function ProductActions({ product, selectedColor, setSelectedColor }) {
     const { addToCart } = useCart();
     // Default val needed for hydration if logic depends on props
     const [isClient, setIsClient] = useState(false);
 
     // Default to first available option if possible
     const [selectedSize, setSelectedSize] = useState(null);
-    const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || null);
     const [quantity, setQuantity] = useState(1);
 
     // Pincode State
@@ -240,7 +239,7 @@ export default function ProductActions({ product }) {
 
             {/* Payment & Pincode */}
             <div className="space-y-4 pt-4 border-t border-dashed border-border-primary">
-                
+
             </div>
 
             {/* Main Actions */}
