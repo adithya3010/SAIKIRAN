@@ -18,7 +18,7 @@ export default function HeroAdminPage() {
                     // Let's assume heroVariants has IDs like 1 and 2.
                     // If data.heroVariant is 'default', activeId is 1. If 'creative', activeId is 2.
                     // We need to match this with what's in @/lib/data or just hardcode for now for safety.
-                    const variantMap = { 'default': 1, 'creative': 2 };
+                    const variantMap = { 'default': 1, 'creative': 2, 'video': 3, 'modern': 4 };
                     setCurrentActiveId(variantMap[data.heroVariant] || 1);
                 }
             } catch (error) {
@@ -35,8 +35,8 @@ export default function HeroAdminPage() {
         setIsSaving(true);
         try {
             // Map ID back to string for DB
-            // 1 -> 'default', 2 -> 'creative'
-            const variantMap = { 1: 'default', 2: 'creative' };
+            // 1 -> 'default', 2 -> 'creative', 3 -> 'video', 4 -> 'modern'
+            const variantMap = { 1: 'default', 2: 'creative', 3: 'video', 4: 'modern' };
             const variantString = variantMap[id] || 'default';
 
             const res = await fetch('/api/admin/settings', {

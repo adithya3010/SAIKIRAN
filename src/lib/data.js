@@ -203,6 +203,18 @@ export const heroVariants = [
         name: 'Creative Revolution',
         description: 'New interactive dark mode hero with 3D tilt effect and neon aesthetic.',
         image: '/hero-creative-preview.png'
+    },
+    {
+        id: 3,
+        name: 'Cinematic Video',
+        description: 'Immersive full-screen video background showcasing the brand lifestyle.',
+        image: '/hero-tshirt-mockup.jpeg'
+    },
+    {
+        id: 4,
+        name: 'Modern Streetwear',
+        description: 'Clean, dual-button layout with centered typography matching the new brand aesthetic.',
+        image: '/hero-modern-placeholder.png'
     }
 ];
 

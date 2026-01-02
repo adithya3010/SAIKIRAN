@@ -1,5 +1,7 @@
 import Hero from '@/components/home/Hero';
 import HeroCreative from '@/components/home/HeroCreative';
+import HeroVideo from '@/components/home/HeroVideo';
+import HeroModern from '@/components/home/HeroModern';
 import FeaturedCollections from '@/components/home/FeaturedCollections';
 import ProductGrid from '@/components/product/ProductGrid';
 import Footer from '@/components/layout/Footer';
@@ -70,8 +72,26 @@ export default async function Home() {
   const newArrivals = await getNewArrivals();
   const settings = await getSiteSettings();
 
-  // Determine which hero to show
-  const HeroComponent = settings.heroVariant === 'creative' ? HeroCreative : Hero;
+  /*
+   * Hero Selection Logic:
+   * 1 -> default -> Hero
+   * 2 -> creative -> HeroCreative
+   * 3 -> video -> HeroCinematic
+   */
+  let HeroComponent;
+  switch (settings.heroVariant) {
+    case 'creative':
+      HeroComponent = HeroCreative;
+      break;
+    case 'video':
+      HeroComponent = HeroVideo;
+      break;
+    case 'modern':
+      HeroComponent = HeroModern;
+      break;
+    default:
+      HeroComponent = Hero;
+  }
 
   return (
     <>
