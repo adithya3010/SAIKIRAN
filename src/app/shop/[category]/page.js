@@ -53,9 +53,13 @@ async function getProducts(category) {
         // UPDATE: I will fetch all products for now if the category is broad (like 'men') 
         // OR just try to find exact matches.
 
-        const products = await Product.find({
-            category: { $regex: new RegExp(category, 'i') }
-        }).lean();
+        // query logic updated for 'all'
+        let query = {};
+        if (category !== 'all') {
+            query = { category: { $regex: new RegExp(category, 'i') } };
+        }
+
+        const products = await Product.find(query).lean();
 
         return products.map(p => ({
             ...p,
@@ -65,6 +69,10 @@ async function getProducts(category) {
             colors: p.colors?.map(c => ({
                 ...c,
                 _id: c._id ? c._id.toString() : undefined
+            })) || [],
+            variants: p.variants?.map(v => ({
+                ...v,
+                _id: v._id ? v._id.toString() : undefined
             })) || []
         }));
     } catch (error) {
@@ -84,11 +92,11 @@ export default async function CategoryPage({ params }) {
     //     notFound();
     // }
 
-    const title = category.charAt(0).toUpperCase() + category.slice(1);
+    const title = category === 'all' ? 'All Products' : `${category.charAt(0).toUpperCase() + category.slice(1)}'s Collection`;
 
     return (
         <div className="pt-24 min-h-screen">
-            <ProductGrid title={`${title}'s Collection`} products={products} />
+            <ProductGrid title={title} products={products} />
             {products.length === 0 && (
                 <div className="text-center text-text-muted mt-10">
                     <p>No products found in this category.</p>

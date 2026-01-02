@@ -41,7 +41,7 @@ export default function OrderHistoryPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground pt-32 px-4 md:px-8 pb-20">
+        <div className="min-h-screen bg-background text-foreground pt-24 md:pt-32 px-4 md:px-8 pb-20">
             <div className="max-w-4xl mx-auto space-y-8">
                 <div className="flex justify-between items-center">
                     <div>

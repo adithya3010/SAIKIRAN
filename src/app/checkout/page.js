@@ -84,8 +84,9 @@ export default function CheckoutPage() {
             if (!res.ok) throw new Error("Failed to place order");
 
             const data = await res.json();
-            clearCart();
-            router.push(`/account/orders/${data._id}`); // Redirect to order details
+            // clearCart(); // Moved to Success Page to prevent redirect race condition
+            // router.push(`/account/orders/${data._id}`); // Redirect to order details
+            router.push('/checkout/success'); // Redirect to success page
         } catch (error) {
             console.error("Order failed", error);
             alert("Failed to place order. Please try again.");
@@ -103,181 +104,256 @@ export default function CheckoutPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground pt-32 px-4 md:px-8 pb-20">
-            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="min-h-screen bg-background text-foreground pt-24 md:pt-32 px-4 md:px-8 pb-40">
+            <div className="max-w-6xl mx-auto">
+                <div className="flex items-center justify-between mb-8 overflow-x-auto pb-4 scrollbar-hide">
+                    {steps.map((step, idx) => {
+                        const isCompleted = currentStep > step.id;
+                        const isActive = currentStep === step.id;
 
-                {/* Main Content */}
-                <div className="lg:col-span-8 space-y-8">
-                    {/* Steps Indicator */}
-                    <div className="flex items-center justify-between mb-8">
-                        {steps.map((step, idx) => (
-                            <div key={step.id} className="flex items-center">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 
-                                    ${currentStep >= step.id ? 'bg-foreground text-background border-foreground' : 'text-text-muted border-text-muted'}
+                        return (
+                            <div key={step.id} className="flex items-center flex-shrink-0">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 flex-shrink-0 transition-colors duration-300
+                                    ${isCompleted ? 'bg-green-500 border-green-500 text-bg-primary' :
+                                        isActive ? 'bg-foreground text-background border-foreground' : 'text-text-muted border-text-muted'}
                                 `}>
-                                    {step.id}
+                                    {isCompleted ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                    ) : (
+                                        step.id
+                                    )}
                                 </div>
-                                <span className={`ml-2 text-sm font-bold uppercase tracking-wider ${currentStep >= step.id ? 'text-foreground' : 'text-text-muted'}`}>
+                                <span className={`ml-2 text-xs md:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-colors duration-300 ${isCompleted ? 'text-green-500' : isActive ? 'text-foreground' : 'text-text-muted'}`}>
                                     {step.name}
                                 </span>
                                 {idx < steps.length - 1 && (
-                                    <div className="w-12 h-0.5 mx-4 bg-border-primary"></div>
+                                    <div className={`w-8 md:w-12 h-0.5 mx-2 md:mx-4 flex-shrink-0 transition-colors duration-300 ${isCompleted ? 'bg-green-500' : 'bg-border-primary'}`}></div>
                                 )}
                             </div>
-                        ))}
-                    </div>
+                        );
+                    })}
+                </div>
 
-                    {/* Step 1: Address */}
-                    {currentStep === 1 && (
-                        <div className="animate-fade-in">
-                            <h2 className="text-xl font-bold mb-6">Select Shipping Address</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {addresses.map((addr) => (
-                                    <div
-                                        key={addr._id}
-                                        onClick={() => setSelectedAddress(addr._id)}
-                                        className={`p-6 rounded-lg border-2 cursor-pointer transition-all ${selectedAddress === addr._id ? 'border-foreground bg-bg-secondary' : 'border-border-primary hover:border-foreground/50'}`}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    {/* Main Content */}
+                    <div className="lg:col-span-8 space-y-8">
+                        {/* Step 1: Address */}
+                        {currentStep === 1 && (
+                            <div className="animate-fade-in">
+                                <h2 className="text-xl font-bold mb-6">Select Shipping Address</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {addresses.map((addr) => (
+                                        <div
+                                            key={addr._id}
+                                            onClick={() => setSelectedAddress(addr._id)}
+                                            className={`p-6 rounded-lg border-2 cursor-pointer transition-all ${selectedAddress === addr._id ? 'border-foreground bg-bg-secondary' : 'border-border-primary hover:border-foreground/50'}`}
+                                        >
+                                            <div className="font-bold mb-1">{addr.firstName} {addr.lastName}</div>
+                                            <div className="text-sm text-muted-foreground space-y-1">
+                                                <p>{addr.address}</p>
+                                                <p>{addr.city}, {addr.state} {addr.postalCode}</p>
+                                                <p>{addr.country}</p>
+                                                <p>Phone: {addr.phone}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {/* Add New Address Button */}
+                                    <button
+                                        onClick={() => router.push('/account/addresses?returnTo=/checkout')}
+                                        className="p-6 rounded-lg border-2 border-dashed border-border-primary flex items-center justify-center hover:bg-bg-secondary transition-colors"
                                     >
-                                        <div className="font-bold mb-1">{addr.firstName} {addr.lastName}</div>
-                                        <div className="text-sm text-muted-foreground space-y-1">
-                                            <p>{addr.address}</p>
-                                            <p>{addr.city}, {addr.state} {addr.postalCode}</p>
-                                            <p>{addr.country}</p>
-                                            <p>Phone: {addr.phone}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                                {/* Add New Address Button */}
-                                <button
-                                    onClick={() => router.push('/account/addresses?returnTo=/checkout')}
-                                    className="p-6 rounded-lg border-2 border-dashed border-border-primary flex items-center justify-center hover:bg-bg-secondary transition-colors"
-                                >
-                                    <span className="font-bold">+ Manage / Add Address</span>
-                                </button>
+                                        <span className="font-bold">+ Manage / Add Address</span>
+                                    </button>
+                                </div>
+                                <div className="mt-8 hidden lg:flex justify-end">
+                                    <Button
+                                        variant="solid"
+                                        disabled={!selectedAddress}
+                                        onClick={() => setCurrentStep(2)}
+                                    >
+                                        Continue to Payment
+                                    </Button>
+                                </div>
                             </div>
-                            <div className="mt-8 flex justify-end">
-                                <Button
-                                    variant="solid"
-                                    disabled={!selectedAddress}
-                                    onClick={() => setCurrentStep(2)}
-                                >
-                                    Continue to Payment
-                                </Button>
-                            </div>
-                        </div>
-                    )}
+                        )}
 
-                    {/* Step 2: Payment */}
-                    {currentStep === 2 && (
-                        <div className="animate-fade-in">
-                            <h2 className="text-xl font-bold mb-6">Select Payment Method</h2>
-                            <div className="space-y-4">
-                                {['Credit Card', 'Debit Card', 'UPI', 'Cash on Delivery'].map((method) => (
-                                    <label key={method} className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${paymentMethod === method ? 'border-foreground bg-bg-secondary' : 'border-border-primary hover:bg-bg-tertiary'}`}>
-                                        <input
-                                            type="radio"
-                                            name="paymentMethod"
-                                            value={method}
-                                            checked={paymentMethod === method}
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
-                                            className="w-5 h-5 accent-foreground mr-4"
-                                        />
-                                        <span className="font-medium">{method}</span>
-                                    </label>
-                                ))}
-                            </div>
-                            <div className="mt-8 flex justify-between">
-                                <Button variant="outline" onClick={() => setCurrentStep(1)}>Back</Button>
-                                <Button
-                                    variant="solid"
-                                    disabled={!paymentMethod}
-                                    onClick={() => setCurrentStep(3)}
-                                >
-                                    Review Order
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Step 3: Review */}
-                    {currentStep === 3 && (
-                        <div className="animate-fade-in">
-                            <h2 className="text-xl font-bold mb-6">Review Order</h2>
-                            <div className="bg-bg-secondary rounded-lg p-6 space-y-4 mb-6">
-                                <h3 className="font-bold border-b border-border-primary pb-2">Shipping To:</h3>
-                                {selectedAddress && (() => {
-                                    const addr = addresses.find(a => a._id === selectedAddress);
-                                    return (
-                                        <div className="text-sm">
-                                            <p className="font-bold">{addr.firstName} {addr.lastName}</p>
-                                            <p>{addr.address}, {addr.city}</p>
-                                            <p>{addr.state}, {addr.postalCode}</p>
-                                            <p>{addr.country}</p>
-                                        </div>
-                                    );
-                                })()}
-                            </div>
-                            <div className="bg-bg-secondary rounded-lg p-6 space-y-4 mb-6">
-                                <h3 className="font-bold border-b border-border-primary pb-2">Payment Method:</h3>
-                                <p className="text-sm">{paymentMethod}</p>
-                            </div>
-
-                            <div className="space-y-4">
-                                {cartItems.map((item) => (
-                                    <div key={item.cartId} className="flex gap-4 border-b border-border-primary pb-4">
-                                        <div className="relative w-20 h-24 bg-bg-tertiary rounded overflow-hidden flex-shrink-0">
-                                            <Image
-                                                src={item.image || item.colors?.[0]?.images?.[0] || item.images?.[0]}
-                                                alt={item.name}
-                                                fill
-                                                className="object-cover"
+                        {/* Step 2: Payment */}
+                        {currentStep === 2 && (
+                            <div className="animate-fade-in">
+                                <h2 className="text-xl font-bold mb-6">Select Payment Method</h2>
+                                <div className="space-y-4">
+                                    {['Credit Card', 'Debit Card', 'UPI', 'Cash on Delivery'].map((method) => (
+                                        <label key={method} className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${paymentMethod === method ? 'border-foreground bg-bg-secondary' : 'border-border-primary hover:bg-bg-tertiary'}`}>
+                                            <input
+                                                type="radio"
+                                                name="paymentMethod"
+                                                value={method}
+                                                checked={paymentMethod === method}
+                                                onChange={(e) => setPaymentMethod(e.target.value)}
+                                                className="w-5 h-5 accent-foreground mr-4"
                                             />
+                                            <span className="font-medium">{method}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                                <div className="mt-8 hidden lg:flex justify-between">
+                                    <Button variant="outline" onClick={() => setCurrentStep(1)}>Back</Button>
+                                    <Button
+                                        variant="solid"
+                                        disabled={!paymentMethod}
+                                        onClick={() => setCurrentStep(3)}
+                                    >
+                                        Review Order
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Step 3: Review */}
+                        {currentStep === 3 && (
+                            <div className="animate-fade-in">
+                                <h2 className="text-xl font-bold mb-6">Review Order</h2>
+
+                                <div className="space-y-4 mb-6">
+                                    {cartItems.map((item) => (
+                                        <div key={item.cartId} className="flex flex-col sm:flex-row gap-4 border-b border-border-primary pb-4">
+                                            <div className="flex gap-4 flex-1">
+                                                <div className="relative w-20 h-24 bg-bg-tertiary rounded overflow-hidden flex-shrink-0">
+                                                    <Image
+                                                        src={item.image || item.colors?.[0]?.images?.[0] || item.images?.[0]}
+                                                        alt={item.name}
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="font-bold">{item.name}</h4>
+                                                    <p className="text-sm text-text-muted">Size: {item.selectedSize} | Color: {item.selectedColor?.name}</p>
+                                                    <p className="text-sm text-text-muted">Qty: {item.quantity}</p>
+                                                </div>
+                                            </div>
+                                            <div className="font-bold">₹{item.price * item.quantity}</div>
                                         </div>
-                                        <div className="flex-1">
-                                            <h4 className="font-bold">{item.name}</h4>
-                                            <p className="text-sm text-text-muted">Size: {item.selectedSize} | Color: {item.selectedColor?.name}</p>
-                                            <p className="text-sm text-text-muted">Qty: {item.quantity}</p>
+                                    ))}
+                                </div>
+
+                                <div className="bg-bg-secondary rounded-lg p-6 space-y-4 mb-6">
+                                    <h3 className="font-bold border-b border-border-primary pb-2">Shipping To:</h3>
+                                    {selectedAddress && (() => {
+                                        const addr = addresses.find(a => a._id === selectedAddress);
+                                        return (
+                                            <div className="text-sm">
+                                                <p className="font-bold">{addr.firstName} {addr.lastName}</p>
+                                                <p>{addr.address}, {addr.city}</p>
+                                                <p>{addr.state}, {addr.postalCode}</p>
+                                                <p>{addr.country}</p>
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                                <div className="bg-bg-secondary rounded-lg p-6 space-y-4 mb-6">
+                                    <h3 className="font-bold border-b border-border-primary pb-2">Payment Method:</h3>
+                                    <p className="text-sm">{paymentMethod}</p>
+                                </div>
+
+                                {/* Order Summary - Mobile Only */}
+                                <div className="bg-bg-secondary rounded-lg p-6 space-y-4 mb-6 lg:hidden">
+                                    <h3 className="font-bold border-b border-border-primary pb-2">Order Summary</h3>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between">
+                                            <span className="text-text-muted">Subtotal</span>
+                                            <span>₹{cartTotal}</span>
                                         </div>
-                                        <div className="font-bold">₹{item.price * item.quantity}</div>
+                                        <div className="flex justify-between">
+                                            <span className="text-text-muted">Shipping</span>
+                                            <span className="text-green-500">Free</span>
+                                        </div>
+                                        <div className="border-t border-border-primary pt-4 flex justify-between font-bold text-lg">
+                                            <span>Total</span>
+                                            <span>₹{cartTotal}</span>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
 
-                            <div className="mt-8 flex justify-between">
-                                <Button variant="outline" onClick={() => setCurrentStep(2)}>Back</Button>
-                                <Button
-                                    variant="solid"
-                                    onClick={handlePlaceOrder}
-                                    disabled={processing}
-                                >
-                                    {processing ? "Allocating Stock..." : "Place Order"}
-                                </Button>
+                                <div className="mt-8 hidden lg:flex justify-between">
+                                    <Button variant="outline" onClick={() => setCurrentStep(2)}>Back</Button>
+                                    <Button
+                                        variant="solid"
+                                        onClick={handlePlaceOrder}
+                                        disabled={processing}
+                                    >
+                                        {processing ? "Allocating Stock..." : "Place Order"}
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
 
-                {/* Sidebar Summary */}
-                <div className="lg:col-span-4">
-                    <div className="bg-bg-secondary p-6 rounded-lg sticky top-24 border border-border-primary">
-                        <h3 className="text-xl font-bold mb-6">Order Summary</h3>
-                        <div className="space-y-4">
-                            <div className="flex justify-between">
-                                <span className="text-text-muted">Subtotal</span>
-                                <span>₹{cartTotal}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-text-muted">Shipping</span>
-                                <span className="text-green-500">Free</span>
-                            </div>
-                            <div className="border-t border-border-primary pt-4 flex justify-between font-bold text-lg">
-                                <span>Total</span>
-                                <span>₹{cartTotal}</span>
+                    {/* Sidebar Summary - Desktop Only */}
+                    <div className="hidden lg:col-span-4 lg:block">
+                        <div className="bg-bg-secondary p-6 rounded-lg sticky top-24 border border-border-primary">
+                            <h3 className="text-xl font-bold mb-6">Order Summary</h3>
+                            <div className="space-y-4">
+                                <div className="flex justify-between">
+                                    <span className="text-text-muted">Subtotal</span>
+                                    <span>₹{cartTotal}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-text-muted">Shipping</span>
+                                    <span className="text-green-500">Free</span>
+                                </div>
+                                <div className="border-t border-border-primary pt-4 flex justify-between font-bold text-lg">
+                                    <span>Total</span>
+                                    <span>₹{cartTotal}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                {/* Mobile Fixed Bottom Bar */}
+                <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border-primary lg:hidden z-50">
+                    {currentStep === 1 && (
+                        <div className="flex w-full">
+                            <Button
+                                variant="solid"
+                                className="w-full"
+                                disabled={!selectedAddress}
+                                onClick={() => setCurrentStep(2)}
+                            >
+                                Continue to Payment
+                            </Button>
+                        </div>
+                    )}
+                    {currentStep === 2 && (
+                        <div className="flex w-full gap-4">
+                            <Button variant="outline" className="flex-1" onClick={() => setCurrentStep(1)}>Back</Button>
+                            <Button
+                                variant="solid"
+                                className="flex-1"
+                                disabled={!paymentMethod}
+                                onClick={() => setCurrentStep(3)}
+                            >
+                                Review Order
+                            </Button>
+                        </div>
+                    )}
+                    {currentStep === 3 && (
+                        <div className="flex w-full gap-4">
+                            <Button variant="outline" className="flex-1" onClick={() => setCurrentStep(2)}>Back</Button>
+                            <Button
+                                variant="solid"
+                                className="flex-1"
+                                onClick={handlePlaceOrder}
+                                disabled={processing}
+                            >
+                                {processing ? "Allocating Stock..." : "Place Order"}
+                            </Button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

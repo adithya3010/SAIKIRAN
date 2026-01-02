@@ -2,7 +2,7 @@ import ProductCard from './ProductCard';
 
 export default function ProductGrid({ title, products }) {
     return (
-        <section className="py-24 px-4 max-w-[1400px] mx-auto">
+        <section className="py-16 md:py-24 px-4 max-w-[1400px] mx-auto">
             <div className="mb-12 flex justify-between items-end">
                 <h2 className="font-outfit text-3xl font-semibold uppercase text-foreground tracking-widest">{title}</h2>
             </div>

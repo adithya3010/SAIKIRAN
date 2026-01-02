@@ -47,7 +47,7 @@ export default function OrderDetailsPage({ params }) {
     if (!order) return null;
 
     return (
-        <div className="min-h-screen bg-background text-foreground pt-32 px-4 md:px-8 pb-20">
+        <div className="min-h-screen bg-background text-foreground pt-24 md:pt-32 px-4 md:px-8 pb-20">
             <div className="max-w-4xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -71,17 +71,19 @@ export default function OrderDetailsPage({ params }) {
                             <h2 className="text-xl font-bold mb-6 border-b border-border-primary pb-4">Items</h2>
                             <div className="space-y-6">
                                 {order.items.map((item, idx) => (
-                                    <div key={idx} className="flex gap-4">
-                                        <div className="relative w-24 h-32 bg-bg-tertiary rounded overflow-hidden flex-shrink-0">
-                                            {(item.image || item.product?.images?.[0]) && (
-                                                <Image src={item.image || item.product?.images?.[0]} alt={item.name} fill className="object-cover" />
-                                            )}
-                                        </div>
-                                        <div className="flex-1">
-                                            <h3 className="font-bold text-lg">{item.name}</h3>
-                                            <p className="text-sm text-text-muted">Size: {item.selectedSize}</p>
-                                            <p className="text-sm text-text-muted">Color: {item.selectedColor?.name}</p>
-                                            <p className="text-sm text-text-muted mt-2">Qty: {item.quantity} x ₹{item.price}</p>
+                                    <div key={idx} className="flex flex-col sm:flex-row gap-4">
+                                        <div className="flex gap-4 flex-1">
+                                            <div className="relative w-24 h-32 bg-bg-tertiary rounded overflow-hidden flex-shrink-0">
+                                                {(item.image || item.product?.images?.[0]) && (
+                                                    <Image src={item.image || item.product?.images?.[0]} alt={item.name} fill className="object-cover" />
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <h3 className="font-bold text-lg">{item.name}</h3>
+                                                <p className="text-sm text-text-muted">Size: {item.selectedSize}</p>
+                                                <p className="text-sm text-text-muted">Color: {item.selectedColor?.name}</p>
+                                                <p className="text-sm text-text-muted mt-2">Qty: {item.quantity} x ₹{item.price}</p>
+                                            </div>
                                         </div>
                                         <div className="font-bold text-lg">
                                             ₹{item.price * item.quantity}

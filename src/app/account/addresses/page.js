@@ -164,9 +164,9 @@ export default function AddressesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground pt-32 px-4 md:px-8 pb-20">
+        <div className="min-h-screen bg-background text-foreground pt-24 md:pt-32 px-4 md:px-8 pb-20">
             <div className="max-w-4xl mx-auto space-y-8">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-bold mb-2">My Addresses</h1>
                         <p className="text-muted-foreground">Manage your shipping addresses</p>
