@@ -62,6 +62,11 @@ export function CartProvider({ children }) {
 
     const toggleCart = () => setIsCartOpen(!isCartOpen);
 
+    const clearCart = () => {
+        setCartItems([]);
+        localStorage.removeItem('cart');
+    };
+
     const cartTotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
     const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
@@ -74,7 +79,8 @@ export function CartProvider({ children }) {
             isCartOpen,
             toggleCart,
             cartTotal,
-            cartCount
+            cartCount,
+            clearCart
         }}>
             {children}
         </CartContext.Provider>

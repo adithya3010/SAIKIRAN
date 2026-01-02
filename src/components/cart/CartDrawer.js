@@ -4,9 +4,19 @@ import CartItem from "./CartItem";
 import Button from "../ui/Button";
 import { useEffect, useRef } from "react";
 
+import { useRouter } from "next/navigation";
+
 export default function CartDrawer() {
     const { isCartOpen, toggleCart, cartItems, cartTotal } = useCart();
+    const router = useRouter();
     const drawerRef = useRef(null);
+
+    const handleCheckout = () => {
+        toggleCart();
+        router.push('/checkout');
+    };
+
+
 
     // Close on click outside
     useEffect(() => {
@@ -65,7 +75,7 @@ export default function CartDrawer() {
                             <span className="text-xl font-medium text-foreground">₹{cartTotal.toFixed(2)}</span>
                         </div>
                         <p className="text-xs text-text-muted mb-6 text-center">Shipping and taxes calculated at checkout.</p>
-                        <Button variant="solid" className="w-full">
+                        <Button variant="solid" className="w-full" onClick={handleCheckout}>
                             Checkout
                         </Button>
                     </div>

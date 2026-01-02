@@ -50,8 +50,17 @@ export default function AccountPage() {
                     </div>
 
                     <div className="pt-6 border-t border-border-primary space-y-6">
-                        {/* Theme Settings */}
+                        {/* Account Actions */}
                         <div>
+                            <h3 className="text-lg font-medium mb-4">Orders</h3>
+                            <Button
+                                variant="outline"
+                                className="w-full justify-start mb-6"
+                                onClick={() => router.push('/account/orders')}
+                            >
+                                View Order History
+                            </Button>
+
                             <h3 className="text-lg font-medium mb-4">Appearance</h3>
                             <div className="flex gap-2">
                                 {['system', 'light', 'dark'].map((t) => (
@@ -66,6 +75,21 @@ export default function AccountPage() {
                                         {t}
                                     </button>
                                 ))}
+                            </div>
+                        </div>
+
+                        {/* Settings */}
+                        <div>
+                            <h3 className="text-lg font-medium mb-4">Settings</h3>
+                            <div className="space-y-3">
+                                <Button
+                                    variant="outline"
+                                    className="w-full justify-start"
+                                    onClick={() => router.push('/account/addresses')}
+                                >
+                                    Manage Addresses
+                                </Button>
+                                {/* Future: Change Password, etc. */}
                             </div>
                         </div>
 

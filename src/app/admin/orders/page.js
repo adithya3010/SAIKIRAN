@@ -1,108 +1,146 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { mockOrders } from '@/lib/data';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 export default function AdminOrdersPage() {
-    const [filterStatus, setFilterStatus] = useState('All');
-
+    const { data: session, status } = useSession();
+    const router = useRouter();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [updating, setUpdating] = useState(null);
 
     useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const res = await fetch('/api/orders');
-                const data = await res.json();
-                if (data.success) {
-                    setOrders(data.data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch orders", error);
-            } finally {
-                setLoading(false);
+        if (status === "unauthenticated") {
+            router.push("/login");
+        } else if (status === "authenticated") {
+            if (session.user.role !== 'admin') {
+                router.push('/');
+                return;
             }
-        };
-        fetchOrders();
-    }, []);
+            fetchOrders();
+        }
+    }, [status, router, session]);
 
-    const filteredOrders = filterStatus === 'All'
-        ? orders
-        : orders.filter(order => order.status === filterStatus);
+    const fetchOrders = async () => {
+        try {
+            const res = await fetch("/api/orders");
+            if (res.ok) {
+                const data = await res.json();
+                setOrders(data.data || []);
+            }
+        } catch (error) {
+            console.error("Failed to fetch orders");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    const statuses = ['All', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+    const updateStatus = async (id, newStatus) => {
+        if (!confirm(`Change status to ${newStatus}?`)) return;
+        setUpdating(id);
+        try {
+            const res = await fetch(`/api/orders/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (res.ok) {
+                const updatedOrder = await res.json();
+                setOrders(prev => prev.map(o => o._id === id ? updatedOrder : o));
+            }
+        } catch (error) {
+            console.error("Failed to update status");
+        } finally {
+            setUpdating(null);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-background text-foreground pt-32 flex justify-center">
+                <div className="animate-pulse">Loading Admin Orders...</div>
+            </div>
+        );
+    }
 
     return (
-        <div className="p-8 md:p-12 pb-20">
-            <div className="mb-10">
-                <h1 className="text-4xl font-outfit font-bold uppercase mb-2">Orders</h1>
-                <p className="text-grey-400">Track and manage customer orders.</p>
-            </div>
-
-            {/* Filter Tabs */}
-            <div className="flex flex-wrap gap-2 mb-8 border-b border-white/10 pb-4">
-                {statuses.map(status => (
-                    <button
-                        key={status}
-                        onClick={() => setFilterStatus(status)}
-                        className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${filterStatus === status
-                            ? 'bg-white text-black'
-                            : 'text-grey-500 hover:text-white bg-white/5'
-                            }`}
-                    >
-                        {status}
-                    </button>
-                ))}
-            </div>
-
-            {/* Table */}
-            <div className="bg-black border border-white/10 rounded-xl overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-white/5 text-grey-400 uppercase tracking-wider text-xs font-bold">
-                            <tr>
-                                <th className="p-4">Order ID</th>
-                                <th className="p-4">Customer</th>
-                                <th className="p-4">Date</th>
-                                <th className="p-4">Items</th>
-                                <th className="p-4 text-right">Total</th>
-                                <th className="p-4">Status</th>
-                                <th className="p-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/10">
-                            {loading ? (
-                                <tr><td colSpan="7" className="p-8 text-center text-grey-500">Loading orders...</td></tr>
-                            ) : filteredOrders.map(order => (
-                                <tr key={order._id} className="hover:bg-white/5 transition-colors">
-                                    <td className="p-4 font-mono text-grey-300 font-bold">{order._id.substring(0, 8)}...</td>
-                                    <td className="p-4 font-medium text-white">{order.user?.name || 'Guest'}</td>
-                                    <td className="p-4 text-grey-500">{new Date(order.createdAt).toLocaleDateString()}</td>
-                                    <td className="p-4 text-grey-400">{order.items.length} Items</td>
-                                    <td className="p-4 text-right font-mono text-white">₹{order.totalPrice.toLocaleString()}</td>
-                                    <td className="p-4">
-                                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${order.status === 'Delivered' ? 'border-green-500/30 text-green-400 bg-green-500/10' :
-                                            order.status === 'Processing' ? 'border-yellow-500/30 text-yellow-400 bg-yellow-500/10' :
-                                                order.status === 'Cancelled' ? 'border-red-500/30 text-red-400 bg-red-500/10' :
-                                                    'border-blue-500/30 text-blue-400 bg-blue-500/10'
-                                            }`}>
-                                            {order.status}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 text-right">
-                                        <button className="text-white hover:text-grey-300 underline text-xs uppercase tracking-widest">
-                                            Manage
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                {filteredOrders.length === 0 && (
-                    <div className="p-12 text-center text-grey-500">
-                        No orders found with status "{filterStatus}".
+        <div className="min-h-screen bg-background text-foreground pt-32 px-4 md:px-8 pb-20">
+            <div className="max-w-7xl mx-auto space-y-8">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-3xl font-bold mb-2">Order Management</h1>
+                        <p className="text-muted-foreground">Manage and track all customer orders</p>
                     </div>
-                )}
+                </div>
+
+                <div className="bg-bg-secondary border border-border-primary rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-bg-tertiary text-text-muted uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th className="px-6 py-4">Order ID</th>
+                                    <th className="px-6 py-4">Date</th>
+                                    <th className="px-6 py-4">Customer</th>
+                                    <th className="px-6 py-4">Total</th>
+                                    <th className="px-6 py-4">Payment</th>
+                                    <th className="px-6 py-4">Status</th>
+                                    <th className="px-6 py-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border-primary">
+                                {orders.map((order) => (
+                                    <tr key={order._id} className="hover:bg-bg-tertiary/50 transition-colors">
+                                        <td className="px-6 py-4 font-mono font-medium">{order.orderNumber}</td>
+                                        <td className="px-6 py-4">{new Date(order.createdAt).toLocaleDateString()}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="font-bold">{order.user?.name}</div>
+                                            <div className="text-xs text-text-muted">{order.user?.email}</div>
+                                        </td>
+                                        <td className="px-6 py-4 font-bold">₹{order.totalPrice}</td>
+                                        <td className="px-6 py-4">
+                                            <div>{order.paymentMethod}</div>
+                                            <div className={`text-xs font-bold ${order.isPaid ? 'text-green-500' : 'text-yellow-500'}`}>
+                                                {order.isPaid ? 'PAID' : 'PENDING'}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wider 
+                                                ${order.status === 'Processing' ? 'bg-yellow-500/10 text-yellow-500' :
+                                                    order.status === 'Delivered' ? 'bg-green-500/10 text-green-500' :
+                                                        order.status === 'Cancelled' ? 'bg-red-500/10 text-red-500' :
+                                                            'bg-blue-500/10 text-blue-500'}`}>
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex gap-2">
+                                                {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
+                                                    <select
+                                                        className="bg-bg-primary border border-border-secondary text-xs rounded p-1 outline-none"
+                                                        value=""
+                                                        onChange={(e) => updateStatus(order._id, e.target.value)}
+                                                        disabled={updating === order._id}
+                                                    >
+                                                        <option value="" disabled>Update Status</option>
+                                                        <option value="Shipped">Mark Shipped</option>
+                                                        <option value="Delivered">Mark Delivered</option>
+                                                        <option value="Cancelled">Cancel Order</option>
+                                                    </select>
+                                                )}
+                                                <Button size="sm" variant="outline" onClick={() => router.push(`/account/orders/${order._id}`)}>
+                                                    View
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     );

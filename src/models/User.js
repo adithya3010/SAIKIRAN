@@ -23,6 +23,17 @@ const UserSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    addresses: [{
+        firstName: String,
+        lastName: String,
+        address: String,
+        city: String,
+        state: String,
+        postalCode: String,
+        country: String,
+        phone: String,
+        isDefault: { type: Boolean, default: false }
+    }]
 });
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);

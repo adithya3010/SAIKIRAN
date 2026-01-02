@@ -1,36 +1,96 @@
-import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Order from '@/models/Order';
-import { getServerSession } from 'next-auth';
-// Import authOptions if defined in a separate file, or use relevant session logic
-// For this example, assuming standard next-auth usage. 
-// Note: In App Router, you typically access session via generic handlers or helper
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
+import dbConnect from "@/lib/db";
+import Order from "@/models/Order";
+import Product from "@/models/Product";
+import { NextResponse } from "next/server";
 
-export async function GET(request) {
+export async function GET(req) {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     await dbConnect();
 
-    try {
-        // Simple Admin Role Check (In production, use middleware or more robust session check)
-        // For now, fetching all orders sorted by date
-        const orders = await Order.find({}).populate('user', 'id name email').sort({ createdAt: -1 });
-
+    // If admin, return all. If user, return theirs.
+    if (session.user.role === 'admin') {
+        const orders = await Order.find({}).populate('user', 'name email').sort({ createdAt: -1 });
         return NextResponse.json({ success: true, data: orders });
-    } catch (error) {
-        return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+    } else {
+        const orders = await Order.find({ user: session.user.id }).sort({ createdAt: -1 });
+        return NextResponse.json({ success: true, data: orders });
     }
 }
 
-export async function POST(request) {
-    await dbConnect();
-
+export async function POST(req) {
     try {
-        const body = await request.json();
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
-        // Basic validation could go here
+        const data = await req.json();
+        const { orderItems, shippingAddress, paymentMethod, itemsPrice, taxPrice, shippingPrice, totalPrice } = data;
 
-        const order = await Order.create(body);
-        return NextResponse.json({ success: true, data: order }, { status: 201 });
+        if (orderItems && orderItems.length === 0) {
+            return NextResponse.json({ error: "No order items" }, { status: 400 });
+        }
+
+        await dbConnect();
+
+        // 1. Validate Stock & Update
+        for (const item of orderItems) {
+            const product = await Product.findById(item.product);
+            if (!product) {
+                throw new Error(`Product not found: ${item.name}`);
+            }
+
+            // Find variant
+            const variantIndex = product.variants.findIndex(v =>
+                v.size === item.selectedSize &&
+                v.color.name === item.selectedColor.name
+            );
+
+            if (variantIndex === -1) {
+                throw new Error(`Variant not found for ${item.name} (${item.selectedSize}, ${item.selectedColor.name})`);
+            }
+
+            const variant = product.variants[variantIndex];
+
+            if (variant.stock < item.quantity) {
+                throw new Error(`Insufficient stock for ${item.name} (${item.selectedSize}, ${item.selectedColor.name}). Available: ${variant.stock}`);
+            }
+
+            // Reduce stock
+            product.variants[variantIndex].stock -= item.quantity;
+            await product.save();
+        }
+
+        // 2. Generate Order Number
+        const orderNumber = `ORD-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 1000)}`;
+
+        // 3. Create Order
+        const order = new Order({
+            user: session.user.id,
+            orderNumber,
+            items: orderItems,
+            shippingAddress,
+            paymentMethod,
+            itemsPrice,
+            taxPrice,
+            shippingPrice,
+            totalPrice,
+            isPaid: paymentMethod !== 'Cash on Delivery', // Basic logic
+            isDelivered: false,
+        });
+
+        const createdOrder = await order.save();
+
+        return NextResponse.json(createdOrder, { status: 201 });
+
     } catch (error) {
-        return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+        console.error("Order creation failed", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
