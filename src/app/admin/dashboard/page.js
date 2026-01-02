@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { mockOrders, mockUsers, products } from "@/lib/data";
 
 const StatCard = ({ title, value, subtext, trend }) => (
@@ -22,6 +22,14 @@ export default function AdminDashboard() {
     const { data: session, status } = useSession();
     const router = useRouter();
 
+    const [stats, setStats] = useState({
+        totalRevenue: 0,
+        totalOrders: 0,
+        totalUsers: 0,
+        totalProducts: 0,
+        recentOrders: []
+    });
+
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/admin/login");
@@ -30,14 +38,26 @@ export default function AdminDashboard() {
         }
     }, [status, session, router]);
 
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await fetch('/api/admin/stats');
+                const data = await res.json();
+                if (data.success) {
+                    setStats(data.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch stats", error);
+            }
+        };
+
+        if (status === "authenticated" && session?.user?.role === "admin") {
+            fetchStats();
+        }
+    }, [status, session]);
+
     if (status === "loading") return <div className="text-foreground p-8">Loading...</div>;
     if (!session || session.user.role !== "admin") return null;
-
-    // Calculate Stats
-    const totalRevenue = mockOrders.reduce((acc, order) => acc + order.total, 0);
-    const totalOrders = mockOrders.length;
-    const totalUsers = mockUsers.length;
-    const lowStockProducts = products.filter(p => !p.inStock || p.inStock < 10); // Mock check
 
     return (
         <div className="p-8 md:p-12 max-w-7xl mx-auto">
@@ -54,10 +74,10 @@ export default function AdminDashboard() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                <StatCard title="Total Revenue" value={`₹${totalRevenue.toLocaleString()}`} subtext="vs last month" trend="up" />
-                <StatCard title="Total Orders" value={totalOrders} subtext="vs last month" trend="up" />
-                <StatCard title="Total Customers" value={totalUsers} subtext="new this month" trend="up" />
-                <StatCard title="Products" value={products.length} subtext="active in store" trend="up" />
+                <StatCard title="Total Revenue" value={`₹${stats.totalRevenue.toLocaleString()}`} subtext="lifetime" trend="up" />
+                <StatCard title="Total Orders" value={stats.totalOrders} subtext="lifetime" trend="up" />
+                <StatCard title="Total Customers" value={stats.totalUsers} subtext="active accounts" trend="up" />
+                <StatCard title="Total Products" value={stats.totalProducts} subtext="in catalog" trend="up" />
             </div>
 
             {/* Recent Orders Preview */}
@@ -78,11 +98,11 @@ export default function AdminDashboard() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border-primary">
-                            {mockOrders.slice(0, 5).map(order => (
-                                <tr key={order.id} className="hover:bg-bg-tertiary transition-colors">
-                                    <td className="p-4 font-mono text-foreground/70">{order.id}</td>
-                                    <td className="p-4 font-medium text-foreground">{order.customer}</td>
-                                    <td className="p-4 text-text-muted">{order.date}</td>
+                            {stats.recentOrders.map(order => (
+                                <tr key={order._id} className="hover:bg-bg-tertiary transition-colors">
+                                    <td className="p-4 font-mono text-foreground/70">{order._id.substring(0, 8)}...</td>
+                                    <td className="p-4 font-medium text-foreground">{order.user?.name || 'Guest'}</td>
+                                    <td className="p-4 text-text-muted">{new Date(order.createdAt).toLocaleDateString()}</td>
                                     <td className="p-4">
                                         <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${order.status === 'Delivered' ? 'border-green-500/30 text-green-500 bg-green-500/10' :
                                             order.status === 'Processing' ? 'border-yellow-500/30 text-yellow-500 bg-yellow-500/10' :
@@ -92,7 +112,7 @@ export default function AdminDashboard() {
                                             {order.status}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-right font-mono text-foreground">₹{order.total.toLocaleString()}</td>
+                                    <td className="p-4 text-right font-mono text-foreground">₹{order.totalPrice.toLocaleString()}</td>
                                 </tr>
                             ))}
                         </tbody>

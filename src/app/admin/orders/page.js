@@ -1,13 +1,33 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { mockOrders } from '@/lib/data';
 
 export default function AdminOrdersPage() {
     const [filterStatus, setFilterStatus] = useState('All');
 
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const res = await fetch('/api/orders');
+                const data = await res.json();
+                if (data.success) {
+                    setOrders(data.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch orders", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchOrders();
+    }, []);
+
     const filteredOrders = filterStatus === 'All'
-        ? mockOrders
-        : mockOrders.filter(order => order.status === filterStatus);
+        ? orders
+        : orders.filter(order => order.status === filterStatus);
 
     const statuses = ['All', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
 
@@ -25,8 +45,8 @@ export default function AdminOrdersPage() {
                         key={status}
                         onClick={() => setFilterStatus(status)}
                         className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${filterStatus === status
-                                ? 'bg-white text-black'
-                                : 'text-grey-500 hover:text-white bg-white/5'
+                            ? 'bg-white text-black'
+                            : 'text-grey-500 hover:text-white bg-white/5'
                             }`}
                     >
                         {status}
@@ -50,18 +70,20 @@ export default function AdminOrdersPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/10">
-                            {filteredOrders.map(order => (
-                                <tr key={order.id} className="hover:bg-white/5 transition-colors">
-                                    <td className="p-4 font-mono text-grey-300 font-bold">{order.id}</td>
-                                    <td className="p-4 font-medium text-white">{order.customer}</td>
-                                    <td className="p-4 text-grey-500">{order.date}</td>
-                                    <td className="p-4 text-grey-400">{order.items} Items</td>
-                                    <td className="p-4 text-right font-mono text-white">₹{order.total.toLocaleString()}</td>
+                            {loading ? (
+                                <tr><td colSpan="7" className="p-8 text-center text-grey-500">Loading orders...</td></tr>
+                            ) : filteredOrders.map(order => (
+                                <tr key={order._id} className="hover:bg-white/5 transition-colors">
+                                    <td className="p-4 font-mono text-grey-300 font-bold">{order._id.substring(0, 8)}...</td>
+                                    <td className="p-4 font-medium text-white">{order.user?.name || 'Guest'}</td>
+                                    <td className="p-4 text-grey-500">{new Date(order.createdAt).toLocaleDateString()}</td>
+                                    <td className="p-4 text-grey-400">{order.items.length} Items</td>
+                                    <td className="p-4 text-right font-mono text-white">₹{order.totalPrice.toLocaleString()}</td>
                                     <td className="p-4">
                                         <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${order.status === 'Delivered' ? 'border-green-500/30 text-green-400 bg-green-500/10' :
-                                                order.status === 'Processing' ? 'border-yellow-500/30 text-yellow-400 bg-yellow-500/10' :
-                                                    order.status === 'Cancelled' ? 'border-red-500/30 text-red-400 bg-red-500/10' :
-                                                        'border-blue-500/30 text-blue-400 bg-blue-500/10'
+                                            order.status === 'Processing' ? 'border-yellow-500/30 text-yellow-400 bg-yellow-500/10' :
+                                                order.status === 'Cancelled' ? 'border-red-500/30 text-red-400 bg-red-500/10' :
+                                                    'border-blue-500/30 text-blue-400 bg-blue-500/10'
                                             }`}>
                                             {order.status}
                                         </span>
