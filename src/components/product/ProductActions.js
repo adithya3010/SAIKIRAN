@@ -240,9 +240,7 @@ export default function ProductActions({ product }) {
 
             {/* Payment & Pincode */}
             <div className="space-y-4 pt-4 border-t border-dashed border-border-primary">
-                <p className="text-[10px] uppercase tracking-widest text-green-400 font-bold">
-                    Pay Now ₹{Math.round(product.price * 0.1)} Rest Pay Later
-                </p>
+                
             </div>
 
             {/* Main Actions */}
