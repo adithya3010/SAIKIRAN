@@ -130,7 +130,7 @@ export default function AdminProductsPage() {
                                         </td>
                                         <td className="p-4 text-right font-mono text-foreground">₹{product.price.toLocaleString()}</td>
                                         <td className="p-4 text-right">
-                                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                 <Link href={`/admin/products/edit/${product._id}`} className="text-text-muted hover:text-foreground p-2 inline-block">
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                                 </Link>
