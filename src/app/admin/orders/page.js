@@ -108,7 +108,7 @@ export default function AdminOrdersPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wider 
-                                                ${order.status === 'Processing' ? 'bg-yellow-500/10 text-yellow-500' :
+                                                ${order.status === 'Processing' || order.status === 'Packed' || order.status === 'Placed' ? 'bg-yellow-500/10 text-yellow-500' :
                                                     order.status === 'Delivered' ? 'bg-green-500/10 text-green-500' :
                                                         order.status === 'Cancelled' ? 'bg-red-500/10 text-red-500' :
                                                             'bg-blue-500/10 text-blue-500'}`}>
@@ -117,21 +117,8 @@ export default function AdminOrdersPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex gap-2">
-                                                {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
-                                                    <select
-                                                        className="bg-bg-primary border border-border-secondary text-xs rounded p-1 outline-none"
-                                                        value=""
-                                                        onChange={(e) => updateStatus(order._id, e.target.value)}
-                                                        disabled={updating === order._id}
-                                                    >
-                                                        <option value="" disabled>Update Status</option>
-                                                        <option value="Shipped">Mark Shipped</option>
-                                                        <option value="Delivered">Mark Delivered</option>
-                                                        <option value="Cancelled">Cancel Order</option>
-                                                    </select>
-                                                )}
-                                                <Button size="sm" variant="outline" onClick={() => router.push(`/account/orders/${order._id}`)}>
-                                                    View
+                                                <Button size="sm" variant="outline" onClick={() => router.push(`/admin/orders/${order._id}`)}>
+                                                    Manage
                                                 </Button>
                                             </div>
                                         </td>

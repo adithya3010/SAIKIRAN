@@ -11,7 +11,7 @@ export async function GET(req, { params }) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { id } = params;
+        const { id } = await params;
         await dbConnect();
         const order = await Order.findById(id).populate('user', 'name email');
 
@@ -37,17 +37,19 @@ export async function PUT(req, { params }) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { id } = params;
+        const { id } = await params;
+        await dbConnect();
         const data = await req.json();
 
-        await dbConnect();
-
         const updateData = { status: data.status };
+        if (data.trackingDetails) {
+            updateData.trackingDetails = data.trackingDetails;
+        }
         if (data.status === 'Delivered') {
             updateData.isDelivered = true;
             updateData.deliveredAt = Date.now();
         }
-        if (data.status === 'Processing' || data.status === 'Shipped') {
+        if (['Placed', 'Processing', 'Packed', 'Shipped'].includes(data.status)) {
             updateData.isDelivered = false;
         }
 

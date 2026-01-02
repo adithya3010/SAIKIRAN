@@ -6,7 +6,7 @@ export default function Footer() {
             <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
                 <div className="md:col-span-1">
                     <Link href="/" className="font-outfit text-2xl font-bold tracking-[0.1em] uppercase text-foreground mb-6 block">
-                        KSHRA
+                        MAY BE NOT
                     </Link>
                     <p className="text-text-muted text-sm leading-relaxed max-w-xs">
                         Elevating simplicity to an art form. We believe in the power of absence.
@@ -36,7 +36,7 @@ export default function Footer() {
                 </div>
             </div>
             <div className="border-t border-border-primary mt-16 py-8 px-4 text-center text-xs text-text-muted">
-                <p>&copy; {new Date().getFullYear()} KSHRA Inc. All rights reserved.</p>
+                <p>&copy; {new Date().getFullYear()} MAY BE NOT Inc. All rights reserved.</p>
             </div>
         </footer>
     );
