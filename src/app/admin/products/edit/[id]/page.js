@@ -25,7 +25,7 @@ export default function EditProductPage() {
         printType: 'Solid',
         occasion: 'Everyday',
         images: [''],
-        colors: [{ name: 'Black', hex: '#000000', stock: 10 }],
+        colors: [{ name: 'Black', hex: '#000000', stock: 10, images: [] }],
         sizes: [],
         variants: [], // { color, size, stock }
         inStock: true
@@ -45,6 +45,14 @@ export default function EditProductPage() {
                     // But we should try to preserve if exists.
                     let loadedVariants = product.variants || [];
 
+                    const loadedColors = (product.colors?.length > 0
+                        ? product.colors
+                        : [{ name: 'Black', hex: '#000000', stock: 10, images: [] }]
+                    ).map((c) => ({
+                        ...c,
+                        images: Array.isArray(c?.images) ? c.images : [],
+                    }));
+
                     setFormData({
                         name: product.name,
                         description: product.description,
@@ -55,7 +63,7 @@ export default function EditProductPage() {
                         printType: product.printType || 'Solid',
                         occasion: product.occasion || 'Everyday',
                         images: product.images.length > 0 ? product.images : [''],
-                        colors: product.colors.length > 0 ? product.colors : [{ name: 'Black', hex: '#000000', stock: 10 }],
+                        colors: loadedColors,
                         sizes: product.sizes || [],
                         variants: loadedVariants,
                         inStock: product.inStock
@@ -226,13 +234,63 @@ export default function EditProductPage() {
     };
 
     const addColor = () => {
-        setFormData(prev => ({ ...prev, colors: [...prev.colors, { name: '', hex: '#000000', stock: 10 }] }));
+        setFormData(prev => ({ ...prev, colors: [...prev.colors, { name: '', hex: '#000000', stock: 10, images: [] }] }));
     };
 
     const removeColor = (index) => {
         const newColors = [...formData.colors];
         newColors.splice(index, 1);
         setFormData(prev => ({ ...prev, colors: newColors }));
+    };
+
+    // Color Image Handlers
+    const handleColorImageUpload = async (colorIndex, e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        setUploading(true);
+        try {
+            const uploadPromises = files.map(async (file) => {
+                const compressedFile = await compressImage(file);
+                const data = new FormData();
+                data.append('file', compressedFile);
+                const res = await fetch('/api/upload', { method: 'POST', body: data });
+                return await res.json();
+            });
+
+            const results = await Promise.all(uploadPromises);
+            const successfulUrls = results.filter(r => r.success).map(r => r.url);
+
+            setFormData(prev => {
+                const newColors = [...prev.colors];
+                const existing = Array.isArray(newColors[colorIndex]?.images) ? newColors[colorIndex].images : [];
+                const uniqueNew = successfulUrls.filter(url => !existing.includes(url));
+                if (uniqueNew.length > 0) {
+                    newColors[colorIndex] = {
+                        ...newColors[colorIndex],
+                        images: [...existing, ...uniqueNew],
+                    };
+                }
+                return { ...prev, colors: newColors };
+            });
+
+            e.target.value = '';
+        } catch (error) {
+            console.error('Upload failed', error);
+            alert('Upload failed');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const removeColorImage = (colorIndex, imgIndex) => {
+        setFormData(prev => {
+            const newColors = [...prev.colors];
+            const imgs = Array.isArray(newColors[colorIndex]?.images) ? [...newColors[colorIndex].images] : [];
+            imgs.splice(imgIndex, 1);
+            newColors[colorIndex] = { ...newColors[colorIndex], images: imgs };
+            return { ...prev, colors: newColors };
+        });
     };
 
     // Size Handlers
@@ -262,8 +320,13 @@ export default function EditProductPage() {
             const payload = {
                 ...formData,
                 price: parseFloat(formData.price),
-                images: formData.images.filter(img => img.trim() !== ''),
-                colors: formData.colors.filter(c => c.name.trim() !== '')
+                images: (formData.colors?.[0]?.images || []).filter(Boolean),
+                colors: formData.colors
+                    .filter(c => c.name.trim() !== '')
+                    .map(c => ({
+                        ...c,
+                        images: (c.images || []).filter(Boolean),
+                    }))
             };
 
 
@@ -441,7 +504,8 @@ export default function EditProductPage() {
                     <div className="space-y-4 pt-4">
                         <label className="text-xs uppercase tracking-widest text-text-muted">2. Define Colors</label>
                         {formData.colors.map((color, index) => (
-                            <div key={index} className="flex gap-4 items-end bg-bg-secondary p-4 rounded border border-border-primary">
+                            <div key={index} className="bg-bg-secondary p-4 rounded border border-border-primary space-y-4">
+                                <div className="flex gap-4 items-end">
                                 <div className="space-y-2 flex-1">
                                     <label className="text-[10px] uppercase text-text-muted">Name</label>
                                     <input
@@ -469,6 +533,43 @@ export default function EditProductPage() {
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
                                 )}
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <label className="text-[10px] uppercase tracking-widest text-text-muted">Color Images</label>
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-foreground border-b border-foreground hover:text-text-muted hover:border-text-muted transition-colors cursor-pointer">
+                                            + Upload
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                onChange={(e) => handleColorImageUpload(index, e)}
+                                                className="hidden"
+                                            />
+                                        </label>
+                                    </div>
+
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                                        {(color.images || []).map((imgUrl, imgIndex) => (
+                                            <div key={`${imgUrl}-${imgIndex}`} className="relative aspect-square bg-bg-tertiary rounded overflow-hidden border border-border-primary">
+                                                <Image src={imgUrl} alt={`${color.name || 'Color'} image`} fill className="object-cover" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeColorImage(index, imgIndex)}
+                                                    className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white text-[10px] px-2 py-1 rounded"
+                                                    aria-label="Remove image"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {Array.isArray(color.images) && color.images.length === 0 && (
+                                        <div className="text-xs text-text-muted">Upload at least one image for this color.</div>
+                                    )}
+                                </div>
                             </div>
                         ))}
                         <button type="button" onClick={addColor} className="text-xs font-bold uppercase tracking-widest text-foreground border-b border-foreground hover:text-text-muted hover:border-text-muted transition-colors">

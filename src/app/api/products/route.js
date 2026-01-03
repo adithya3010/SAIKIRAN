@@ -13,6 +13,21 @@ export async function POST(req) {
         // Todo: Add stricter auth check here
         const body = await req.json();
 
+        // Derive inStock from stock quantities when variants/colors exist.
+        const variantStockTotal = Array.isArray(body?.variants)
+            ? body.variants.reduce((sum, v) => sum + (Number(v?.stock) || 0), 0)
+            : 0;
+        const colorStockTotal = Array.isArray(body?.colors)
+            ? body.colors.reduce((sum, c) => sum + (Number(c?.stock) || 0), 0)
+            : 0;
+        const inferredInStock = (variantStockTotal > 0) || (colorStockTotal > 0);
+
+        if (Array.isArray(body?.variants) && body.variants.length > 0) {
+            body.inStock = inferredInStock;
+        } else if (Array.isArray(body?.colors) && body.colors.length > 0) {
+            body.inStock = inferredInStock;
+        }
+
         // Create Product
         const product = await Product.create(body);
 

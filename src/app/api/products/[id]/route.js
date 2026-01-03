@@ -8,7 +8,7 @@ export async function GET(req, { params }) {
         await dbConnect();
         const { id } = await params;
         const product = await Product.findById(id)
-            .select('_id name slug description price images category createdAt variants')
+            .select('_id name slug description price images category createdAt variants colors sizes inStock fit fabric printType occasion isNewProduct')
             .lean();
 
         if (!product) {
@@ -37,6 +37,21 @@ export async function PUT(req, { params }) {
         await dbConnect();
         const { id } = await params;
         const body = await req.json();
+
+        // Derive inStock from stock quantities when variants/colors exist.
+        const variantStockTotal = Array.isArray(body?.variants)
+            ? body.variants.reduce((sum, v) => sum + (Number(v?.stock) || 0), 0)
+            : 0;
+        const colorStockTotal = Array.isArray(body?.colors)
+            ? body.colors.reduce((sum, c) => sum + (Number(c?.stock) || 0), 0)
+            : 0;
+        const inferredInStock = (variantStockTotal > 0) || (colorStockTotal > 0);
+
+        if (Array.isArray(body?.variants) && body.variants.length > 0) {
+            body.inStock = inferredInStock;
+        } else if (Array.isArray(body?.colors) && body.colors.length > 0) {
+            body.inStock = inferredInStock;
+        }
 
         const product = await Product.findByIdAndUpdate(id, body, {
             new: true,

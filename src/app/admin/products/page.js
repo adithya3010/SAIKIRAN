@@ -27,6 +27,22 @@ export default function AdminProductsPage() {
         fetchProducts();
     }, []);
 
+    const getStockInfo = (product) => {
+        const variants = Array.isArray(product?.variants) ? product.variants : [];
+        const colors = Array.isArray(product?.colors) ? product.colors : [];
+
+        const variantTotal = variants.reduce((sum, v) => sum + (Number(v?.stock) || 0), 0);
+        const colorTotal = colors.reduce((sum, c) => sum + (Number(c?.stock) || 0), 0);
+
+        const hasVariants = variants.length > 0;
+        const hasColors = colors.length > 0;
+        const isInStock = (hasVariants || hasColors)
+            ? (variantTotal > 0 || colorTotal > 0)
+            : Boolean(product?.inStock);
+
+        return { isInStock, variantTotal, colorTotal };
+    };
+
     const handleDelete = async (id) => {
         if (!confirm('Are you sure you want to delete this product?')) return;
 
@@ -37,7 +53,7 @@ export default function AdminProductsPage() {
             const data = await res.json();
 
             if (data.success) {
-                setProducts(prev => prev.filter(p => p._id !== id));
+                setProducts(prev => prev.filter(p => (p._id?.toString?.() || p._id) !== id));
             } else {
                 alert('Failed to delete product: ' + data.error);
             }
@@ -106,8 +122,10 @@ export default function AdminProductsPage() {
                                     <td colSpan="6" className="p-8 text-center text-text-muted">No products found.</td>
                                 </tr>
                             ) : (
-                                filteredProducts.map(product => (
-                                    <tr key={product._id} className="hover:bg-bg-tertiary transition-colors group">
+                                filteredProducts.map((product) => {
+                                    const { isInStock } = getStockInfo(product);
+                                    return (
+                                    <tr key={product._id} className="hover:bg-bg-tertiary transition-colors">
                                         <td className="p-4">
                                             <div className="relative w-12 h-16 bg-bg-tertiary rounded overflow-hidden">
                                                 {/* Placeholder Image Logic */}
@@ -121,16 +139,16 @@ export default function AdminProductsPage() {
                                         <td className="p-4 font-bold text-foreground">{product.name}</td>
                                         <td className="p-4 text-text-muted">{product.category}</td>
                                         <td className="p-4">
-                                            <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${product.inStock
+                                            <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${isInStock
                                                 ? 'border-green-500/30 text-green-500 bg-green-500/10'
                                                 : 'border-red-500/30 text-red-500 bg-red-500/10'
                                                 }`}>
-                                                {product.inStock ? 'In Stock' : 'Out of Stock'}
+                                                {isInStock ? 'In Stock' : 'Out of Stock'}
                                             </span>
                                         </td>
                                         <td className="p-4 text-right font-mono text-foreground">₹{product.price.toLocaleString()}</td>
                                         <td className="p-4 text-right">
-                                            <div className="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                            <div className="flex justify-end gap-2">
                                                 <Link href={`/admin/products/edit/${product._id}`} className="text-text-muted hover:text-foreground p-2 inline-block">
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                                 </Link>
@@ -140,7 +158,8 @@ export default function AdminProductsPage() {
                                             </div>
                                         </td>
                                     </tr>
-                                ))
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>

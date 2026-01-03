@@ -6,9 +6,19 @@ import Image from 'next/image';
 export default function ProductCard({ product }) {
     const [isHovered, setIsHovered] = useState(false);
 
+    const hasVariantStock = Array.isArray(product.variants) && product.variants.length > 0;
+    const isSoldOut = hasVariantStock
+        ? !product.variants.some(v => (v?.stock || 0) > 0)
+        : !product.inStock;
+
+    const firstColorImages = product?.colors?.[0]?.images;
+    const imageList = (Array.isArray(firstColorImages) && firstColorImages.length > 0)
+        ? firstColorImages
+        : product.images;
+
     // Provide fallback images if array is empty or short
-    const mainImage = product.images?.[0] || '/placeholder.png'; // You might want a real placeholder
-    const hoverImage = product.images?.[1] || mainImage;
+    const mainImage = imageList?.[0] || '/placeholder.png'; // You might want a real placeholder
+    const hoverImage = imageList?.[1] || mainImage;
 
     return (
         <div
@@ -33,12 +43,12 @@ export default function ProductCard({ product }) {
 
                 {/* Badges */}
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
-                    {product.isNew && (
+                    {product.isNewProduct && (
                         <span className="bg-white text-black text-[10px] font-bold px-2 py-1 uppercase tracking-widest">
                             New
                         </span>
                     )}
-                    {!product.inStock && (
+                    {isSoldOut && (
                         <span className="bg-neutral-800 text-white text-[10px] font-bold px-2 py-1 uppercase tracking-widest">
                             Sold Out
                         </span>

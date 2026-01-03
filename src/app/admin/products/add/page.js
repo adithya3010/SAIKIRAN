@@ -257,14 +257,20 @@ export default function AddProductPage() {
 
         try {
             // Clean up data before sending
-            // Aggregate all images for backward compatibility / API schema
-            const allImages = formData.colors.flatMap(c => c.images || []);
+            const firstColorImages = (formData.colors?.[0]?.images || []).filter(Boolean);
 
             const payload = {
                 ...formData,
                 price: parseFloat(formData.price),
-                images: allImages, // Populate top-level images
-                colors: formData.colors.filter(c => c.name.trim() !== '')
+                // Keep legacy top-level images for components that still use it.
+                // But preserve the per-color separation by not flattening everything.
+                images: firstColorImages,
+                colors: formData.colors
+                    .filter(c => c.name.trim() !== '')
+                    .map(c => ({
+                        ...c,
+                        images: (c.images || []).filter(Boolean),
+                    }))
             };
 
             const res = await fetch('/api/products', {

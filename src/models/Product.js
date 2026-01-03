@@ -89,14 +89,13 @@ ProductSchema.index({ category: 1, createdAt: -1 });
 ProductSchema.index({ price: 1 });
 ProductSchema.index({ name: 1 });
 
-ProductSchema.pre('save', function (next) {
+ProductSchema.pre('save', function () {
     if (this.isModified('name') || this.nameNormalized == null) {
         this.nameNormalized = (this.name || '').trim().toLowerCase();
     }
     if (this.isModified('category') || this.categoryNormalized == null) {
         this.categoryNormalized = (this.category || '').trim().toLowerCase();
     }
-    next();
 });
 
 export default mongoose.models.Product || mongoose.model('Product', ProductSchema);
