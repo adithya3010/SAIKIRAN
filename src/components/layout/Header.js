@@ -30,7 +30,7 @@ export default function Header() {
 
                     {/* Left (Logo) */}
                     <div className="flex items-center">
-                        <Link href="/" className="relative w-48 h-24 md:w-64 md:h-32 left-0">
+                        <Link href="/" className="relative w-64 h-38 md:w-64 md:h-36 left-2 bottom-2">
                             <Image
                                 src="/brand.png"
                                 alt="MAY BE NOT"

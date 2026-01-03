@@ -39,11 +39,9 @@ const formatAddress = (address) => {
 };
 
 const renderHeader = (title) => `
-    <div style="background-color: ${BRAND.primaryColor}; padding: 30px; text-align: center;">
-        <div style="background-color: #ffffff; padding: 15px 20px; display: inline-block; border-radius: 4px;">
-            <img src="${getAbsoluteUrl('/brand.png')}" alt="${BRAND.name}" style="max-height: 60px; width: auto; object-fit: contain; display: block;" />
-        </div>
-        <h1 style="color: #ffffff; margin-top: 25px; font-size: 24px; font-weight: 300; letter-spacing: 1px; text-transform: uppercase;">${title}</h1>
+    <div style="background-color: #ffffff; padding: 40px 30px; text-align: center; border-bottom: 1px solid #eeeeee;">
+        <img src="${getAbsoluteUrl('/brand.png')}" alt="${BRAND.name}" style="max-height: 80px; width: auto; object-fit: contain; display: block; margin: 0 auto;" />
+        <h1 style="color: #000000; margin-top: 20px; font-size: 24px; font-weight: 300; letter-spacing: 2px; text-transform: uppercase;">${title}</h1>
     </div>
 `;
 
