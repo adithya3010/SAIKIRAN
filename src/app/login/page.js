@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [data, setData] = useState({
         email: "",
         password: "",
@@ -28,7 +29,8 @@ export default function LoginPage() {
             setError(result.error);
             setLoading(false);
         } else {
-            router.push("/");
+            const callbackUrl = searchParams.get("callbackUrl") || "/";
+            router.push(callbackUrl);
             router.refresh();
         }
     };

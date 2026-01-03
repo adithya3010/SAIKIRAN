@@ -38,13 +38,12 @@ const formatAddress = (address) => {
     };
 };
 
-// Shared Components
 const renderHeader = (title) => `
     <div style="background-color: ${BRAND.primaryColor}; padding: 30px; text-align: center;">
-        <div style="background-color: #ffffff; padding: 10px; display: inline-block; border-radius: 4px;">
-            <img src="${getAbsoluteUrl('/brand.png')}" alt="${BRAND.name}" style="max-height: 40px; object-fit: contain; display: block;" />
+        <div style="background-color: #ffffff; padding: 15px 20px; display: inline-block; border-radius: 4px;">
+            <img src="${getAbsoluteUrl('/brand.svg')}" alt="${BRAND.name}" style="max-height: 60px; width: auto; object-fit: contain; display: block;" />
         </div>
-        <h1 style="color: #ffffff; margin-top: 20px; font-size: 24px; font-weight: 300; letter-spacing: 1px; text-transform: uppercase;">${title}</h1>
+        <h1 style="color: #ffffff; margin-top: 25px; font-size: 24px; font-weight: 300; letter-spacing: 1px; text-transform: uppercase;">${title}</h1>
     </div>
 `;
 

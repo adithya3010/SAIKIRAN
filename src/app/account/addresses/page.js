@@ -30,7 +30,8 @@ export default function AddressesPage() {
 
     useEffect(() => {
         if (status === "unauthenticated") {
-            router.push("/login");
+            const callbackUrl = encodeURIComponent(window.location.href);
+            router.push(`/login?callbackUrl=${callbackUrl}`);
         } else if (status === "authenticated") {
             fetchAddresses();
         }

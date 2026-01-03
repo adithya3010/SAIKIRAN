@@ -14,7 +14,8 @@ export default function OrderDetailsPage({ params }) {
 
     useEffect(() => {
         if (status === "unauthenticated") {
-            router.push("/login");
+            const callbackUrl = encodeURIComponent(window.location.href);
+            router.push(`/login?callbackUrl=${callbackUrl}`);
         } else if (status === "authenticated") {
             fetchOrder();
         }

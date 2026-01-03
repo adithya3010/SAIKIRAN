@@ -12,7 +12,8 @@ export default function OrderHistoryPage() {
 
     useEffect(() => {
         if (status === "unauthenticated") {
-            router.push("/login");
+            const callbackUrl = encodeURIComponent(window.location.href);
+            router.push(`/login?callbackUrl=${callbackUrl}`);
         } else if (status === "authenticated") {
             fetchOrders();
         }
