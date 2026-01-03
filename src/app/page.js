@@ -2,6 +2,7 @@ import Hero from '@/components/home/Hero';
 import HeroCreative from '@/components/home/HeroCreative';
 import HeroVideo from '@/components/home/HeroVideo';
 import HeroModern from '@/components/home/HeroModern';
+import HeroDesigned from '@/components/home/HeroDesigned';
 import FeaturedCollections from '@/components/home/FeaturedCollections';
 import ProductGrid from '@/components/product/ProductGrid';
 import Footer from '@/components/layout/Footer';
@@ -9,6 +10,7 @@ import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
 import SiteSettings from '@/models/SiteSettings'; // Import Settings model
 import { unstable_noStore as noStore } from 'next/cache';
+import { headers } from 'next/headers';
 
 async function getNewArrivals() {
   noStore();
@@ -68,9 +70,53 @@ async function getSiteSettings() {
   }
 }
 
-export default async function Home() {
+async function getPublishedHeroDesign() {
+  noStore();
+  try {
+    const h = await headers();
+    const host = h.get('x-forwarded-host') || h.get('host');
+    const proto = h.get('x-forwarded-proto') || 'http';
+    const base = host ? `${proto}://${host}` : '';
+    const res = await fetch(`${base}/api/hero`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.heroDesign || null;
+  } catch {
+    return null;
+  }
+}
+
+async function getHeroDesignMaybeDraft({ heroDraft, ts, token }) {
+  noStore();
+  try {
+    const h = await headers();
+    const host = h.get('x-forwarded-host') || h.get('host');
+    const proto = h.get('x-forwarded-proto') || 'http';
+    const base = host ? `${proto}://${host}` : '';
+
+    const qs = heroDraft && ts && token
+      ? `?draft=1&ts=${encodeURIComponent(ts)}&token=${encodeURIComponent(token)}`
+      : '';
+
+    const res = await fetch(`${base}/api/hero${qs}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.heroDesign || null;
+  } catch {
+    return null;
+  }
+}
+
+export default async function Home({ searchParams }) {
   const newArrivals = await getNewArrivals();
   const settings = await getSiteSettings();
+  const sp = await searchParams;
+  const heroDraft = sp?.heroDraft === '1';
+  const ts = sp?.ts;
+  const token = sp?.token;
+  const heroDesign = settings?.heroVariant === 'designed'
+    ? await getHeroDesignMaybeDraft({ heroDraft, ts, token })
+    : null;
 
   /*
    * Hero Selection Logic:
@@ -89,13 +135,16 @@ export default async function Home() {
     case 'modern':
       HeroComponent = HeroModern;
       break;
+    case 'designed':
+      HeroComponent = HeroDesigned;
+      break;
     default:
       HeroComponent = Hero;
   }
 
   return (
     <>
-      <HeroComponent />
+      {settings.heroVariant === 'designed' ? <HeroComponent heroDesign={heroDesign} /> : <HeroComponent />}
       <FeaturedCollections />
       <ProductGrid title="New Arrivals" products={newArrivals} />
       <Footer />

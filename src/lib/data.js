@@ -215,6 +215,12 @@ export const heroVariants = [
         name: 'Modern Streetwear',
         description: 'Clean, dual-button layout with centered typography matching the new brand aesthetic.',
         image: '/hero-modern-placeholder.png'
+    },
+    {
+        id: 5,
+        name: 'Designed (Admin Canvas)',
+        description: 'Pixel-perfect hero built from the admin design plate (no redeploy).',
+        image: '/hero-modern-placeholder.png'
     }
 ];
 

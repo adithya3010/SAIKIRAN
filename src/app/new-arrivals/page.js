@@ -8,16 +8,33 @@ async function getNewArrivals() {
     try {
         await dbConnect();
         const products = await Product.find({}).sort({ createdAt: -1 }).limit(20).lean();
-        return products.map(product => ({
-            ...product,
-            _id: product._id.toString(),
-            id: product._id.toString(),
-            createdAt: product.createdAt?.toISOString(),
-            colors: product.colors?.map(c => ({
+        return products.map(product => {
+            const serializeColors = (product.colors || []).map(c => ({
                 ...c,
-                _id: c._id ? c._id.toString() : undefined
-            })) || []
-        }));
+                _id: c?._id ? c._id.toString() : undefined,
+            }));
+
+            const serializeVariants = (product.variants || []).map(v => ({
+                ...v,
+                _id: v?._id ? v._id.toString() : undefined,
+                color: v?.color
+                    ? {
+                        ...v.color,
+                        _id: v.color?._id ? v.color._id.toString() : undefined,
+                    }
+                    : v?.color,
+            }));
+
+            return {
+                ...product,
+                _id: product._id.toString(),
+                id: product._id.toString(),
+                createdAt: product.createdAt?.toISOString(),
+                updatedAt: product.updatedAt?.toISOString?.(),
+                colors: serializeColors,
+                variants: serializeVariants,
+            };
+        });
     } catch (error) {
         console.error("Failed to fetch new arrivals", error);
         return [];

@@ -18,7 +18,7 @@ export default function HeroAdminPage() {
                     // Let's assume heroVariants has IDs like 1 and 2.
                     // If data.heroVariant is 'default', activeId is 1. If 'creative', activeId is 2.
                     // We need to match this with what's in @/lib/data or just hardcode for now for safety.
-                    const variantMap = { 'default': 1, 'creative': 2, 'video': 3, 'modern': 4 };
+                    const variantMap = { 'default': 1, 'creative': 2, 'video': 3, 'modern': 4, 'designed': 5 };
                     setCurrentActiveId(variantMap[data.heroVariant] || 1);
                 }
             } catch (error) {
@@ -36,7 +36,7 @@ export default function HeroAdminPage() {
         try {
             // Map ID back to string for DB
             // 1 -> 'default', 2 -> 'creative', 3 -> 'video', 4 -> 'modern'
-            const variantMap = { 1: 'default', 2: 'creative', 3: 'video', 4: 'modern' };
+            const variantMap = { 1: 'default', 2: 'creative', 3: 'video', 4: 'modern', 5: 'designed' };
             const variantString = variantMap[id] || 'default';
 
             const res = await fetch('/api/admin/settings', {
@@ -66,6 +66,14 @@ export default function HeroAdminPage() {
             <div className="mb-10">
                 <h1 className="text-4xl font-outfit font-bold uppercase mb-2">Hero Sections</h1>
                 <p className="text-grey-400">Choose and apply the active hero design for the homepage.</p>
+                <div className="mt-4">
+                    <a
+                        href="/admin/hero/designer"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-900 border border-white/10 text-white font-bold uppercase tracking-widest text-xs hover:border-white/40"
+                    >
+                        Open Hero Designer
+                    </a>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

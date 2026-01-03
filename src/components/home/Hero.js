@@ -34,6 +34,7 @@ export default function Hero() {
                             alt="May Be Not Ordinary T-Shirts"
                             fill
                             priority
+                            sizes="(max-width: 768px) 350px, 0px"
                             className="object-contain drop-shadow-2xl"
                         />
                     </div>
@@ -60,6 +61,7 @@ export default function Hero() {
                             alt="May Be Not Ordinary T-Shirts"
                             fill
                             priority
+                            sizes="(min-width: 768px) 700px, 0px"
                             className="object-contain object-center drop-shadow-2xl"
                         />
                     </div>

@@ -29,6 +29,8 @@ export default function LoadingScreen() {
                         src="/brand-loading.png"
                         alt="Loading..."
                         fill
+                        priority
+                        loading="eager"
                         className="object-contain dark:invert"
                         sizes="320px"
                     />
@@ -40,6 +42,8 @@ export default function LoadingScreen() {
                         src="/brand-loading.png"
                         alt="Loading..."
                         fill
+                        priority
+                        loading="eager"
                         className="object-contain dark:invert drop-shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
                         sizes="320px"
                     />
