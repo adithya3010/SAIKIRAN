@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 import { useTheme } from "next-themes";
 import Button from "@/components/ui/Button";
 import { useSession, signOut } from "next-auth/react";

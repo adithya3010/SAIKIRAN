@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { collections } from '@/lib/data';
 
+export const runtime = 'edge';
+
 export default function CollectionsPage() {
     return (
         <div className="pt-[120px] pb-24 px-4 max-w-[1400px] mx-auto min-h-screen">

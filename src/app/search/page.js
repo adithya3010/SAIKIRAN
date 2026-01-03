@@ -262,3 +262,6 @@ export default function SearchPage() {
         </Suspense>
     );
 }
+
+export const runtime = 'edge';
+export const dynamic = 'force-dynamic';

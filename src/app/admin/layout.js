@@ -3,6 +3,9 @@ import React from 'react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import { usePathname } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export default function AdminLayout({ children }) {
     const pathname = usePathname();
 

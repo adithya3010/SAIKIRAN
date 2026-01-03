@@ -3,6 +3,9 @@ import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
 import { unstable_cache } from 'next/cache';
 
+export const runtime = 'nodejs';
+export const revalidate = 3600;
+
 const getNewArrivals = unstable_cache(
     async () => {
     try {
@@ -45,7 +48,7 @@ const getNewArrivals = unstable_cache(
     }
 },
     ['new-arrivals:v1'],
-    { revalidate: 300 }
+    { revalidate: 3600 }
 );
 
 export default async function NewArrivalsPage() {
