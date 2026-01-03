@@ -7,13 +7,25 @@ export async function GET(req, { params }) {
     try {
         await dbConnect();
         const { id } = await params;
-        const product = await Product.findById(id);
+        const product = await Product.findById(id)
+            .select('_id name slug description price images category createdAt variants')
+            .lean();
 
         if (!product) {
             return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ success: true, data: product });
+        const normalized = product
+            ? {
+                ...product,
+                id: product?._id?.toString?.() || product?._id,
+                _id: product?._id?.toString?.() || product?._id,
+            }
+            : product;
+
+        const res = NextResponse.json({ success: true, data: normalized });
+        res.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=1800');
+        return res;
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 });
     }
@@ -35,7 +47,9 @@ export async function PUT(req, { params }) {
             return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ success: true, data: product });
+        const res = NextResponse.json({ success: true, data: product });
+        res.headers.set('Cache-Control', 'private, no-store');
+        return res;
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 });
     }
@@ -53,7 +67,9 @@ export async function DELETE(req, { params }) {
             return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ success: true, data: {} });
+        const res = NextResponse.json({ success: true, data: {} });
+        res.headers.set('Cache-Control', 'private, no-store');
+        return res;
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 });
     }

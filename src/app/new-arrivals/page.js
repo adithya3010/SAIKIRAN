@@ -1,13 +1,17 @@
 import ProductGrid from '@/components/product/ProductGrid';
 import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
-import { unstable_noStore as noStore } from 'next/cache';
+import { unstable_cache } from 'next/cache';
 
-async function getNewArrivals() {
-    noStore();
+const getNewArrivals = unstable_cache(
+    async () => {
     try {
         await dbConnect();
-        const products = await Product.find({}).sort({ createdAt: -1 }).limit(20).lean();
+        const products = await Product.find({})
+            .select('_id name slug price images category createdAt colors variants')
+            .sort({ createdAt: -1 })
+            .limit(20)
+            .lean();
         return products.map(product => {
             const serializeColors = (product.colors || []).map(c => ({
                 ...c,
@@ -39,7 +43,10 @@ async function getNewArrivals() {
         console.error("Failed to fetch new arrivals", error);
         return [];
     }
-}
+},
+    ['new-arrivals:v1'],
+    { revalidate: 300 }
+);
 
 export default async function NewArrivalsPage() {
     const newArrivals = await getNewArrivals();

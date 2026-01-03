@@ -23,8 +23,15 @@ async function dbConnect() {
     if (!cached.promise) {
         const opts = {
             bufferCommands: false,
+            // Pooling helps performance under load.
+            maxPoolSize: Number(process.env.MONGODB_MAX_POOL_SIZE || 10),
+            minPoolSize: Number(process.env.MONGODB_MIN_POOL_SIZE || 0),
+            // Outside of serverless, reduce DNS delay when possible.
+            family: 4,
             serverSelectionTimeoutMS: 5000, // Fail faster if no connection (default 30s)
             socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+            // Reduce wire size when available (MongoDB supports this).
+            compressors: ['zlib'],
         };
 
         cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {

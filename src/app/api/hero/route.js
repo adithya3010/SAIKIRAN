@@ -70,7 +70,18 @@ export async function GET(request) {
 
         const heroDesign = draft || published;
 
-        return NextResponse.json({ heroVariant: settings.heroVariant || 'default', heroDesign });
+        const res = NextResponse.json({ heroVariant: settings.heroVariant || 'default', heroDesign });
+        // Published hero can be cached aggressively by CDN/edge;
+        // draft preview must never be cached.
+        if (wantDraft) {
+            res.headers.set('Cache-Control', 'private, no-store');
+        } else {
+            res.headers.set(
+                'Cache-Control',
+                'public, s-maxage=300, stale-while-revalidate=3600'
+            );
+        }
+        return res;
     } catch (error) {
         console.error('Error fetching hero design:', error);
         return NextResponse.json({ error: 'Failed to fetch hero design' }, { status: 500 });

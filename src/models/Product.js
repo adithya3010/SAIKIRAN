@@ -6,6 +6,10 @@ const ProductSchema = new mongoose.Schema({
         required: [true, 'Please provide a product name'],
         maxlength: [60, 'Name cannot be more than 60 characters'],
     },
+    nameNormalized: {
+        type: String,
+        index: true,
+    },
     description: {
         type: String,
         required: [true, 'Please provide a description'],
@@ -19,6 +23,10 @@ const ProductSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please specify a category'],
         enum: ['T-Shirt', 'Hoodie', 'Jacket', 'Trousers', 'Dress'],
+    },
+    categoryNormalized: {
+        type: String,
+        index: true,
     },
     fit: {
         type: String,
@@ -73,6 +81,22 @@ const ProductSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+});
+
+// Indexes for faster catalog queries
+ProductSchema.index({ createdAt: -1 });
+ProductSchema.index({ category: 1, createdAt: -1 });
+ProductSchema.index({ price: 1 });
+ProductSchema.index({ name: 1 });
+
+ProductSchema.pre('save', function (next) {
+    if (this.isModified('name') || this.nameNormalized == null) {
+        this.nameNormalized = (this.name || '').trim().toLowerCase();
+    }
+    if (this.isModified('category') || this.categoryNormalized == null) {
+        this.categoryNormalized = (this.category || '').trim().toLowerCase();
+    }
+    next();
 });
 
 export default mongoose.models.Product || mongoose.model('Product', ProductSchema);

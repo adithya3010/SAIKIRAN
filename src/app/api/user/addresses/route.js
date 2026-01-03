@@ -12,13 +12,15 @@ export async function GET(req) {
         }
 
         await dbConnect();
-        const user = await User.findById(session.user.id).select("addresses");
+        const user = await User.findById(session.user.id).select("addresses").lean();
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        return NextResponse.json(user.addresses);
+        const res = NextResponse.json(user.addresses);
+        res.headers.set('Cache-Control', 'private, no-store');
+        return res;
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
@@ -59,7 +61,9 @@ export async function POST(req) {
             { new: true, runValidators: true }
         ).select("addresses");
 
-        return NextResponse.json(updatedUser.addresses);
+        const res = NextResponse.json(updatedUser.addresses);
+        res.headers.set('Cache-Control', 'private, no-store');
+        return res;
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
@@ -87,7 +91,9 @@ export async function DELETE(req) {
             { new: true }
         ).select("addresses");
 
-        return NextResponse.json(updatedUser.addresses);
+        const res = NextResponse.json(updatedUser.addresses);
+        res.headers.set('Cache-Control', 'private, no-store');
+        return res;
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
@@ -141,7 +147,9 @@ export async function PUT(req) {
             return NextResponse.json({ error: "Address not found" }, { status: 404 });
         }
 
-        return NextResponse.json(updatedUser.addresses);
+        const res = NextResponse.json(updatedUser.addresses);
+        res.headers.set('Cache-Control', 'private, no-store');
+        return res;
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

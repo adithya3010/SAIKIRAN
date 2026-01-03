@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
 
+function escapeRegExp(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export async function POST(req) {
     try {
         await dbConnect();
@@ -12,7 +16,9 @@ export async function POST(req) {
         // Create Product
         const product = await Product.create(body);
 
-        return NextResponse.json({ success: true, data: product }, { status: 201 });
+        const res = NextResponse.json({ success: true, data: product }, { status: 201 });
+        res.headers.set('Cache-Control', 'private, no-store');
+        return res;
     } catch (error) {
         console.error('Error creating product:', error);
         return NextResponse.json({ success: false, error: error.message }, { status: 400 });
@@ -23,27 +29,22 @@ export async function GET(req) {
     try {
         await dbConnect();
         const { searchParams } = new URL(req.url);
-        const search = searchParams.get('search') || '';
-        const category = searchParams.get('category') || '';
+        const search = (searchParams.get('search') || '').trim().toLowerCase();
+        const category = (searchParams.get('category') || '').trim().toLowerCase();
         const sort = searchParams.get('sort') || 'newest';
 
         let query = {};
 
         // Search Logic
         if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } },
-                { category: { $regex: search, $options: 'i' } }
-            ];
+            // Fast path: indexed prefix search
+            // Note: for "contains" search at scale, use Atlas Search.
+            query.nameNormalized = { $regex: new RegExp(`^${escapeRegExp(search)}`) };
         }
 
         // Category Filter
         if (category) {
-            // If category is provided, it might optionally overlap with search, 
-            // but usually specific filter takes precedence or ANDs with search.
-            // Using AND logic:
-            query.category = { $regex: new RegExp(`^${category}$`, 'i') };
+            query.categoryNormalized = category;
         }
 
         // Sorting Logic
@@ -61,9 +62,22 @@ export async function GET(req) {
                 break;
         }
 
-        const products = await Product.find(query).sort(sortOption);
+        // Keep payload small; avoid sending large fields if not needed.
+        const products = await Product.find(query)
+            .select('_id name slug price images category createdAt variants')
+            .sort(sortOption)
+            .lean();
 
-        return NextResponse.json({ success: true, data: products });
+        const normalized = products.map((p) => ({
+            ...p,
+            id: p?._id?.toString?.() || p?._id,
+            _id: p?._id?.toString?.() || p?._id,
+        }));
+
+        const res = NextResponse.json({ success: true, data: normalized });
+        // Catalog data is safe for CDN caching.
+        res.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=1800');
+        return res;
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
