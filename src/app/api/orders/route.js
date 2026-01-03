@@ -4,6 +4,8 @@ import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
 import { NextResponse } from "next/server";
+import { sendEmail } from "@/lib/email";
+import { generateOrderPlacedEmail } from "@/lib/emailTemplates";
 
 export async function GET(req) {
     const session = await getServerSession(authOptions);
@@ -35,6 +37,13 @@ export async function POST(req) {
 
         if (orderItems && orderItems.length === 0) {
             return NextResponse.json({ error: "No order items" }, { status: 400 });
+        }
+
+        // Map frontend address format to backend schema (fullName)
+        if (shippingAddress && !shippingAddress.fullName) {
+            if (shippingAddress.firstName || shippingAddress.lastName) {
+                shippingAddress.fullName = `${shippingAddress.firstName || ''} ${shippingAddress.lastName || ''}`.trim();
+            }
         }
 
         await dbConnect();
@@ -85,7 +94,29 @@ export async function POST(req) {
             isDelivered: false,
         });
 
+
+
+        // ... existing imports ...
+
+        // ... inside POST ...
+
         const createdOrder = await order.save();
+
+        // Send Email Notification (Async - don't block response)
+        try {
+            const userEmail = session.user.email;
+            if (userEmail) {
+                const emailHtml = generateOrderPlacedEmail(createdOrder);
+                await sendEmail({
+                    to: userEmail,
+                    subject: `Order Confirmation - ${createdOrder.orderNumber}`,
+                    html: emailHtml
+                });
+            }
+        } catch (emailError) {
+            console.error("Failed to send order confirmation email:", emailError);
+            // Don't fail the request if email fails, just log it
+        }
 
         return NextResponse.json(createdOrder, { status: 201 });
 
