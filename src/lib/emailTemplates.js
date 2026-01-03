@@ -9,6 +9,15 @@ const BRAND = {
 // Utilities
 const formatPrice = (v) => `₹${Number(v || 0).toFixed(2)}`;
 
+const getAbsoluteUrl = (path) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Remove leading slash if both have it or add if neither to strictly join
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${baseUrl.replace(/\/$/, '')}${cleanPath}`;
+};
+
 const formatAddress = (address) => {
     if (!address) return '';
     const lines = [
@@ -32,7 +41,7 @@ const formatAddress = (address) => {
 // Shared Components
 const renderHeader = (title) => `
     <div style="background-color: ${BRAND.primaryColor}; padding: 30px; text-align: center;">
-        <img src="${BRAND.website}/brand.png" alt="${BRAND.name}" style="max-height: 40px; object-fit: contain;" />
+        <img src="${getAbsoluteUrl('/brand.png')}" alt="${BRAND.name}" style="max-height: 40px; object-fit: contain;" />
         <h1 style="color: #ffffff; margin-top: 20px; font-size: 24px; font-weight: 300; letter-spacing: 1px; text-transform: uppercase;">${title}</h1>
     </div>
 `;
@@ -55,7 +64,7 @@ export const generateOrderPlacedEmail = (order) => {
     const itemsList = order.items.map(item => `
         <tr>
             <td style="padding: 12px; border-bottom: 1px solid #eee; width: 60px;">
-                <img src="${item.image}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" />
+                <img src="${getAbsoluteUrl(item.image)}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" />
             </td>
             <td style="padding: 12px; border-bottom: 1px solid #eee;">
                 <div style="font-weight: 600; font-size: 14px; color: #333;">${item.name}</div>
@@ -197,7 +206,7 @@ export const generateOrderShippedEmail = (order) => {
                          <ul style="list-style: none; padding: 0; margin: 0;">
                             ${order.items.map(item => `
                                 <li style="padding: 10px 0; border-bottom: 1px solid #fafafa; display: flex; align-items: center;">
-                                    <img src="${item.image}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />
+                                    <img src="${getAbsoluteUrl(item.image)}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />
                                     <div style="flex: 1;">
                                         <div style="font-weight: 500; font-size: 14px;">${item.name}</div>
                                         <div style="color: #888; font-size: 12px;">Qty: ${item.quantity}</div>
