@@ -2,15 +2,6 @@ import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
 import SiteSettings from '@/models/SiteSettings';
 import { unstable_cache } from 'next/cache';
-import { redisGetJson, redisSetJson } from '@/lib/redisCache';
-
-async function withRedisTtlCache(key, ttlSeconds, fn) {
-  const cached = await redisGetJson(key);
-  if (cached) return cached;
-  const value = await fn();
-  await redisSetJson(key, value, ttlSeconds);
-  return value;
-}
 
 function serializeProduct(doc) {
   if (!doc) return null;
@@ -45,7 +36,7 @@ function serializeProduct(doc) {
   return p;
 }
 
-const _getHomeFeaturedProducts = unstable_cache(
+export const getHomeFeaturedProducts = unstable_cache(
   async () => {
     await dbConnect();
     const t0 = Date.now();
@@ -62,11 +53,7 @@ const _getHomeFeaturedProducts = unstable_cache(
   { revalidate: 60 }
 );
 
-export async function getHomeFeaturedProducts() {
-  return withRedisTtlCache('catalog:v1:home-featured-products', 60, _getHomeFeaturedProducts);
-}
-
-const _getProductsByCategory = unstable_cache(
+export const getProductsByCategory = unstable_cache(
   async (category) => {
     await dbConnect();
     const query = category && category !== 'all'
@@ -87,11 +74,7 @@ const _getProductsByCategory = unstable_cache(
   { revalidate: 300 }
 );
 
-export async function getProductsByCategory(category) {
-  return withRedisTtlCache(`catalog:v1:products-by-category:${String(category || 'all')}`, 60, () => _getProductsByCategory(category));
-}
-
-const _getProductById = unstable_cache(
+export const getProductById = unstable_cache(
   async (id) => {
     await dbConnect();
     const t0 = Date.now();
@@ -106,11 +89,7 @@ const _getProductById = unstable_cache(
   { revalidate: 300 }
 );
 
-export async function getProductById(id) {
-  return withRedisTtlCache(`catalog:v1:product-by-id:${String(id)}`, 60, () => _getProductById(id));
-}
-
-const _getRecommendedProducts = unstable_cache(
+export const getRecommendedProducts = unstable_cache(
   async ({ category, currentId }) => {
     await dbConnect();
     const t0 = Date.now();
@@ -129,15 +108,7 @@ const _getRecommendedProducts = unstable_cache(
   { revalidate: 300 }
 );
 
-export async function getRecommendedProducts({ category, currentId }) {
-  return withRedisTtlCache(
-    `catalog:v1:recommended:${String(category)}:${String(currentId)}`,
-    60,
-    () => _getRecommendedProducts({ category, currentId })
-  );
-}
-
-const _getSiteSettingsCached = unstable_cache(
+export const getSiteSettingsCached = unstable_cache(
   async () => {
     await dbConnect();
     const t0 = Date.now();
@@ -153,7 +124,3 @@ const _getSiteSettingsCached = unstable_cache(
   ['site-settings:v1'],
   { revalidate: 60, tags: ['site-settings'] }
 );
-
-export async function getSiteSettingsCached() {
-  return withRedisTtlCache('catalog:v1:site-settings', 60, _getSiteSettingsCached);
-}
