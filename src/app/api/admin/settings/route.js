@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db';
 import SiteSettings from '@/models/SiteSettings';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 async function requireAdmin() {
     const session = await getServerSession(authOptions);
@@ -98,6 +99,16 @@ export async function PUT(request) {
             update,
             { new: true, upsert: true } // upsert creates if not found
         );
+
+        // Make hero changes visible immediately on the storefront.
+        // This clears the cached settings and forces the homepage to regenerate.
+        try {
+            revalidateTag('site-settings');
+            revalidatePath('/');
+        } catch (e) {
+            // Revalidation is best-effort; don't fail the admin update.
+            console.warn('Revalidation failed:', e);
+        }
 
         return NextResponse.json(settings);
     } catch (error) {

@@ -107,5 +107,5 @@ export const getSiteSettingsCached = unstable_cache(
     };
   },
   ['site-settings:v1'],
-  { revalidate: 60 }
+  { revalidate: 60, tags: ['site-settings'] }
 );
