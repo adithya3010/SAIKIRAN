@@ -61,7 +61,7 @@ export default function CartDrawer() {
                     ) : (
                         <div className="flex flex-col">
                             {cartItems.map(item => (
-                                <CartItem key={item.id} item={item} />
+                                <CartItem key={item.cartId || item.id} item={item} />
                             ))}
                         </div>
                     )}

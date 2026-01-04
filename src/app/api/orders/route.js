@@ -3,7 +3,30 @@ import { authOptions } from "../auth/[...nextauth]/route";
 import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
 import { NextResponse } from "next/server";
-import { createCheckoutJob, enqueueCheckoutJob, getCheckoutQueueLength } from "@/lib/checkoutQueue";
+import { createCheckoutJob, enqueueCheckoutJob, getCheckoutQueueLength, setCheckoutJobStatus } from "@/lib/checkoutQueue";
+
+function kickWorkerBestEffort() {
+    try {
+        const secret = process.env.CHECKOUT_WORKER_SECRET;
+        if (!secret) return;
+
+        const baseUrl = (process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
+            .toString()
+            .replace(/\/$/, '');
+
+        // Fire-and-forget: do not delay checkout response.
+        void fetch(`${baseUrl}/api/worker/checkout?max=1`, {
+            method: 'GET',
+            headers: {
+                authorization: `Bearer ${secret}`,
+            },
+            // Avoid any caching.
+            cache: 'no-store',
+        }).catch(() => {});
+    } catch {
+        // ignore
+    }
+}
 
 export async function GET(req) {
     const session = await getServerSession(authOptions);
@@ -80,6 +103,17 @@ export async function POST(req) {
 
         try {
             const jobId = await enqueueCheckoutJob(job);
+
+            await setCheckoutJobStatus(jobId, {
+                state: 'queued',
+                jobId,
+                orderNumber,
+                userId: session.user.id,
+                createdAt: Date.now(),
+            });
+
+            kickWorkerBestEffort();
+
             return NextResponse.json(
                 {
                     success: true,

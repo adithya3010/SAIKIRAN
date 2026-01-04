@@ -2,13 +2,19 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
-import { dequeueCheckoutJobs } from '@/lib/checkoutQueue';
+import { dequeueCheckoutJobs, moveToDeadLetter, setCheckoutJobStatus } from '@/lib/checkoutQueue';
 import { sendEmail } from '@/lib/email';
 import { generateOrderPlacedEmail } from '@/lib/emailTemplates';
 
 export const runtime = 'nodejs';
 
 function isAuthorized(request) {
+  // Vercel Cron jobs include this header; using it avoids putting secrets in the URL.
+  // Only trust it when running on Vercel.
+  if (process.env.VERCEL && request.headers.get('x-vercel-cron') === '1') {
+    return true;
+  }
+
   const secret = process.env.CHECKOUT_WORKER_SECRET;
   if (!secret) return false;
 
@@ -200,10 +206,51 @@ async function runOnce({ maxJobs }) {
 
   for (const job of jobs) {
     try {
+      await setCheckoutJobStatus(job?.id, {
+        state: 'processing',
+        jobId: job?.id,
+        userId: job?.payload?.user?.id || null,
+        orderNumber: job?.payload?.orderNumber,
+        startedAt: Date.now(),
+      });
+
       const result = await processJob(job);
+
+      if (result?.ok) {
+        await setCheckoutJobStatus(job?.id, {
+          state: 'succeeded',
+          jobId: job?.id,
+          userId: job?.payload?.user?.id || null,
+          orderNumber: job?.payload?.orderNumber,
+          orderId: result?.orderId || null,
+          finishedAt: Date.now(),
+        });
+      } else {
+        await setCheckoutJobStatus(job?.id, {
+          state: 'failed',
+          jobId: job?.id,
+          userId: job?.payload?.user?.id || null,
+          orderNumber: job?.payload?.orderNumber,
+          error: result?.error || 'Job failed',
+          finishedAt: Date.now(),
+        });
+        await moveToDeadLetter(job, result?.error || 'Job failed');
+      }
+
       results.push({ jobId: job?.id, ...result });
     } catch (err) {
       console.error('Worker job failed:', err);
+
+      await setCheckoutJobStatus(job?.id, {
+        state: 'failed',
+        jobId: job?.id,
+        userId: job?.payload?.user?.id || null,
+        orderNumber: job?.payload?.orderNumber,
+        error: err?.message || 'Job failed',
+        finishedAt: Date.now(),
+      });
+      await moveToDeadLetter(job, err?.message || 'Job failed');
+
       results.push({ jobId: job?.id, ok: false, error: err?.message || 'Job failed' });
     }
   }

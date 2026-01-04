@@ -89,7 +89,7 @@ export default function CheckoutPage() {
             const data = await res.json();
             // clearCart(); // Moved to Success Page to prevent redirect race condition
             // router.push(`/account/orders/${data._id}`); // Redirect to order details
-            router.push('/checkout/success'); // Redirect to success page
+            router.push(`/checkout/success?jobId=${encodeURIComponent(data.jobId || '')}`); // Redirect to success page
         } catch (error) {
             console.error("Order failed", error);
             alert("Failed to place order. Please try again.");

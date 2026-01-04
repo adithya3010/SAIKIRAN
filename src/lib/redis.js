@@ -8,8 +8,11 @@ import { Redis } from '@upstash/redis';
  * - UPSTASH_REDIS_REST_TOKEN
  */
 export function getRedis() {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const rawUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const rawToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  const url = typeof rawUrl === 'string' ? rawUrl.trim().replace(/^"|"$/g, '') : rawUrl;
+  const token = typeof rawToken === 'string' ? rawToken.trim().replace(/^"|"$/g, '') : rawToken;
 
   if (!url || !token) return null;
 

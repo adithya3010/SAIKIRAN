@@ -32,12 +32,14 @@ export default function ProductCard({ product }) {
                     src={mainImage}
                     alt={product.name}
                     fill
+                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     className={`object-cover object-center transition-opacity duration-500 ease-in-out ${isHovered ? 'opacity-0' : 'opacity-100'}`}
                 />
                 <Image
                     src={hoverImage}
                     alt={`${product.name} alternate view`}
                     fill
+                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     className={`object-cover object-center transition-opacity duration-500 ease-in-out absolute inset-0 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
                 />
 
