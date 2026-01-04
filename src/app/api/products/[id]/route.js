@@ -1,15 +1,28 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
+import { cacheKeyForUrl, redisGetJson, redisSetJson } from '@/lib/redisCache';
+import { EDGE_CACHE_CONTROL, withEdgeCacheHeaders } from '@/lib/edgeCache';
 
 // GET: Fetch single product
 export async function GET(req, { params }) {
     try {
+        const cacheKey = cacheKeyForUrl(req.url);
+        const cached = await redisGetJson(cacheKey);
+        if (cached) {
+            return withEdgeCacheHeaders(NextResponse.json(cached), EDGE_CACHE_CONTROL);
+        }
+
         await dbConnect();
         const { id } = await params;
+        const t0 = Date.now();
         const product = await Product.findById(id)
             .select('_id name slug description price images category createdAt variants colors sizes inStock fit fabric printType occasion isNewProduct')
             .lean();
+        const ms = Date.now() - t0;
+        if (ms > 250) {
+            console.warn('Slow Mongo query /api/products/[id]:', { ms, id });
+        }
 
         if (!product) {
             return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
@@ -23,9 +36,9 @@ export async function GET(req, { params }) {
             }
             : product;
 
-        const res = NextResponse.json({ success: true, data: normalized });
-        res.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=1800');
-        return res;
+        const payload = { success: true, data: normalized };
+        await redisSetJson(cacheKey, payload, 60);
+        return withEdgeCacheHeaders(NextResponse.json(payload), EDGE_CACHE_CONTROL);
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 400 });
     }

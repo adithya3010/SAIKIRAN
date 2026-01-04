@@ -86,6 +86,7 @@ const ProductSchema = new mongoose.Schema({
 // Indexes for faster catalog queries
 ProductSchema.index({ createdAt: -1 });
 ProductSchema.index({ category: 1, createdAt: -1 });
+ProductSchema.index({ categoryNormalized: 1, createdAt: -1 });
 ProductSchema.index({ price: 1 });
 ProductSchema.index({ name: 1 });
 

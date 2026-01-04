@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
+import { cacheKeyForUrl, redisGetJson, redisSetJson } from '@/lib/redisCache';
+import { EDGE_CACHE_CONTROL, withEdgeCacheHeaders } from '@/lib/edgeCache';
 
 function escapeRegExp(value) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -42,6 +44,12 @@ export async function POST(req) {
 
 export async function GET(req) {
     try {
+        const cacheKey = cacheKeyForUrl(req.url);
+        const cached = await redisGetJson(cacheKey);
+        if (cached) {
+            return withEdgeCacheHeaders(NextResponse.json(cached), EDGE_CACHE_CONTROL);
+        }
+
         await dbConnect();
         const { searchParams } = new URL(req.url);
         const search = (searchParams.get('search') || '').trim().toLowerCase();
@@ -78,10 +86,15 @@ export async function GET(req) {
         }
 
         // Keep payload small; avoid sending large fields if not needed.
+        const t0 = Date.now();
         const products = await Product.find(query)
-            .select('_id name slug price images category createdAt variants')
+            .select('_id name slug price images category createdAt fit fabric occasion inStock')
             .sort(sortOption)
             .lean();
+        const ms = Date.now() - t0;
+        if (ms > 250) {
+            console.warn('Slow Mongo query /api/products:', { ms, search, category, sort });
+        }
 
         const normalized = products.map((p) => ({
             ...p,
@@ -89,10 +102,9 @@ export async function GET(req) {
             _id: p?._id?.toString?.() || p?._id,
         }));
 
-        const res = NextResponse.json({ success: true, data: normalized });
-        // Catalog data is safe for CDN caching.
-        res.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=1800');
-        return res;
+        const payload = { success: true, data: normalized };
+        await redisSetJson(cacheKey, payload, 60);
+        return withEdgeCacheHeaders(NextResponse.json(payload), EDGE_CACHE_CONTROL);
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }

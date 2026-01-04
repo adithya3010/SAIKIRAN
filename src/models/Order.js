@@ -1,6 +1,12 @@
 import mongoose from 'mongoose';
 
 const OrderSchema = new mongoose.Schema({
+    checkoutJobId: {
+        type: String,
+        index: true,
+        unique: true,
+        sparse: true,
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

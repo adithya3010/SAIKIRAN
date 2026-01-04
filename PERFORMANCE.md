@@ -79,6 +79,26 @@ For DB pooling (optional):
 - `MONGODB_MAX_POOL_SIZE=10`
 - `MONGODB_MIN_POOL_SIZE=0`
 
+## Upstash Redis (cache + checkout queue)
+
+This app supports Upstash Redis for:
+- **URL-keyed caching** of public GET APIs (`/api/products`, `/api/products/[id]`, `/api/hero`) for **60s**
+- A **checkout queue** so `/api/orders` (POST) returns fast and a worker processes DB writes + email
+
+Required env vars:
+- `UPSTASH_REDIS_REST_URL=...`
+- `UPSTASH_REDIS_REST_TOKEN=...`
+
+Worker protection:
+- `CHECKOUT_WORKER_SECRET=<long random>`
+
+### Triggering the worker (no extra infra)
+
+Deploy a scheduled trigger (recommended via Vercel Cron in the dashboard) to call:
+- `GET /api/worker/checkout?secret=<CHECKOUT_WORKER_SECRET>&max=10`
+
+This keeps the queue draining in the background without running servers.
+
 For Vercel production:
 - `NEXTAUTH_URL=https://<your-domain>`
 - `NEXTAUTH_SECRET=<long random>`

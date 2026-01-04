@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import SiteSettings from '@/models/SiteSettings';
 import crypto from 'crypto';
+import { cacheKeyForUrl, redisGetJson, redisSetJson } from '@/lib/redisCache';
+import { EDGE_CACHE_CONTROL, withEdgeCacheHeaders } from '@/lib/edgeCache';
 
 function timingSafeEqual(a, b) {
     const ba = Buffer.from(a || '');
@@ -16,6 +18,18 @@ function signPreviewToken(secret, payload) {
 
 export async function GET(request) {
     try {
+        const url = new URL(request.url);
+        const wantDraft = url.searchParams.get('draft') === '1';
+
+        // Cache only published hero payloads.
+        if (!wantDraft) {
+            const cacheKey = cacheKeyForUrl(request.url);
+            const cached = await redisGetJson(cacheKey);
+            if (cached) {
+                return withEdgeCacheHeaders(NextResponse.json(cached), EDGE_CACHE_CONTROL);
+            }
+        }
+
         await dbConnect();
         const settings = await SiteSettings.findOne().lean();
 
@@ -23,8 +37,7 @@ export async function GET(request) {
             return NextResponse.json({ heroVariant: 'default', heroDesign: null });
         }
 
-        const url = new URL(request.url);
-        const wantDraft = url.searchParams.get('draft') === '1';
+        // url + wantDraft computed above
         const ts = url.searchParams.get('ts') || '';
         const token = url.searchParams.get('token') || '';
 
@@ -70,18 +83,17 @@ export async function GET(request) {
 
         const heroDesign = draft || published;
 
-        const res = NextResponse.json({ heroVariant: settings.heroVariant || 'default', heroDesign });
-        // Published hero can be cached aggressively by CDN/edge;
-        // draft preview must never be cached.
+        const payload = { heroVariant: settings.heroVariant || 'default', heroDesign };
+        const res = NextResponse.json(payload);
+
+        // Draft preview must never be cached.
         if (wantDraft) {
             res.headers.set('Cache-Control', 'private, no-store');
-        } else {
-            res.headers.set(
-                'Cache-Control',
-                'public, s-maxage=300, stale-while-revalidate=3600'
-            );
+            return res;
         }
-        return res;
+
+        await redisSetJson(cacheKeyForUrl(request.url), payload, 60);
+        return withEdgeCacheHeaders(res, EDGE_CACHE_CONTROL);
     } catch (error) {
         console.error('Error fetching hero design:', error);
         return NextResponse.json({ error: 'Failed to fetch hero design' }, { status: 500 });
