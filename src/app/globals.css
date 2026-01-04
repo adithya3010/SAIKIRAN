@@ -58,6 +58,16 @@ body {
   @apply max-w-[1400px] mx-auto px-4;
 }
 
+/* Hide scrollbars while keeping scroll/swipe behavior */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge Legacy */
+  scrollbar-width: none; /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
 @keyframes shake {
 
   0%,
